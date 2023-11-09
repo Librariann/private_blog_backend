@@ -29,6 +29,7 @@ import { User } from './user/entity/user.entity';
     GraphQLModule.forRoot({
       driver: ApolloDriver,
       playground: true,
+      autoSchemaFile: true,
     }),
     TypeOrmModule.forRoot({
       type: 'mysql',
