@@ -4,6 +4,7 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Post } from './entity/post.entity';
 import { CreatePostInput, CreatePostOutput } from './dto/create-post.dto';
 import { GetPostListOutput } from './dto/get-post-list.dto';
+import { EditPostInput, EditPostOutput } from './dto/edit-post.dto';
 
 @Injectable()
 export class PostService {
@@ -26,6 +27,31 @@ export class PostService {
       return {
         ok: false,
         error: '게시글을 작성 할 수 없습니다',
+      };
+    }
+  }
+
+  async editPost({
+    id,
+    title,
+    contents,
+  }: EditPostInput): Promise<EditPostOutput> {
+    try {
+      await this.post.save([
+        {
+          id,
+          title,
+          contents,
+        },
+      ]);
+      return {
+        ok: true,
+      };
+    } catch (e) {
+      console.log(e);
+      return {
+        ok: false,
+        error: '게시글을 수정 할  수 없습니다.',
       };
     }
   }
