@@ -5,6 +5,7 @@ import {
   CreateAccountInput,
   CreateAccountOutput,
 } from './dto/create-account.dto';
+import { UserProfileOutput } from './dto/user-profile.dto';
 
 export class UserService {
   constructor(
@@ -36,5 +37,24 @@ export class UserService {
         error: '계정을 생성 할 수 없습니다.',
       };
     }
+  }
+
+  async findById(id: number): Promise<UserProfileOutput> {
+    try {
+    } catch (e) {
+      console.log(e);
+      return {
+        ok: false,
+        error: '기능에 이상이 있습니다. 관리자에게 문의해주세요.',
+      };
+    }
+    const userInfo = await this.user.findOneByOrFail({
+      id,
+    });
+
+    return {
+      ok: true,
+      user: userInfo,
+    };
   }
 }
