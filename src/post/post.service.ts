@@ -5,6 +5,7 @@ import { Post } from './entity/post.entity';
 import { CreatePostInput, CreatePostOutput } from './dto/create-post.dto';
 import { GetPostListOutput } from './dto/get-post-list.dto';
 import { EditPostInput, EditPostOutput } from './dto/edit-post.dto';
+import { DeletePostOutput } from './dto/delete-post.dto';
 
 @Injectable()
 export class PostService {
@@ -52,6 +53,35 @@ export class PostService {
       return {
         ok: false,
         error: '게시글을 수정 할  수 없습니다.',
+      };
+    }
+  }
+
+  async deletePost(postId: number): Promise<DeletePostOutput> {
+    try {
+      const postExistCheck = await this.post.findOneByOrFail({
+        id: postId,
+      });
+
+      if (!postExistCheck) {
+        return {
+          ok: false,
+          error: '해당 게시글이 없습니다.',
+        };
+      }
+
+      await this.post.delete({
+        id: postId,
+      });
+
+      return {
+        ok: true,
+      };
+    } catch (e) {
+      console.log(e);
+      return {
+        ok: false,
+        error: '게시글을 삭제 할 수 없습니다.',
       };
     }
   }

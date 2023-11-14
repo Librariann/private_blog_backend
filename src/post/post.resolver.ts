@@ -1,9 +1,10 @@
 import { Post } from './entity/post.entity';
-import { Resolver, Mutation, Args, Query } from '@nestjs/graphql';
+import { Resolver, Mutation, Args, Query, Int } from '@nestjs/graphql';
 import { PostService } from './post.service';
 import { CreatePostInput, CreatePostOutput } from './dto/create-post.dto';
 import { GetPostListOutput } from './dto/get-post-list.dto';
 import { EditPostInput, EditPostOutput } from './dto/edit-post.dto';
+import { DeletePostOutput } from './dto/delete-post.dto';
 
 @Resolver(() => Post)
 export class PostResolver {
@@ -21,6 +22,11 @@ export class PostResolver {
     @Args('input') editPostInput: EditPostInput,
   ): Promise<EditPostOutput> {
     return this.postService.editPost(editPostInput);
+  }
+
+  @Mutation(() => DeletePostOutput)
+  deletePost(@Args('postId', { type: () => Int }) postId: number) {
+    return this.postService.deletePost(postId);
   }
 
   @Query(() => GetPostListOutput)
