@@ -10,6 +10,7 @@ import Joi from 'joi';
 import { GraphQLModule } from '@nestjs/graphql';
 import { ApolloDriver } from '@nestjs/apollo';
 import { User } from './user/entity/user.entity';
+import { JwtModule } from './jwt/jwt.module';
 @Module({
   imports: [
     ConfigModule.forRoot({
@@ -40,6 +41,9 @@ import { User } from './user/entity/user.entity';
       database: process.env.DB_NAME,
       entities: [User, Post],
       synchronize: process.env.NODE_ENV === 'dev',
+    }),
+    JwtModule.forRoot({
+      privateKey: process.env.SECRET_KEY,
     }),
     UserModule,
     PostModule,

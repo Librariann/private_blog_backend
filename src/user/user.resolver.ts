@@ -6,6 +6,7 @@ import {
   CreateAccountOutput,
 } from './dto/create-account.dto';
 import { UserProfileOutput } from './dto/user-profile.dto';
+import { LoginInput, LoginOutput } from './dto/login.dto';
 
 @Resolver(() => User)
 export class UserResolver {
@@ -16,6 +17,11 @@ export class UserResolver {
     @Args('input') createAccountInput: CreateAccountInput,
   ): Promise<CreateAccountOutput> {
     return this.userService.createAccount(createAccountInput);
+  }
+
+  @Mutation(() => LoginOutput)
+  login(@Args('input') loginInput: LoginInput): Promise<LoginOutput> {
+    return this.userService.login(loginInput);
   }
 
   @Query(() => UserProfileOutput)
