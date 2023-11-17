@@ -7,12 +7,15 @@ import {
 } from './dto/create-account.dto';
 import { UserProfileOutput } from './dto/user-profile.dto';
 import { LoginInput, LoginOutput } from './dto/login.dto';
+import { Public } from 'src/auth/public.decorator';
+import { AuthUser } from 'src/auth/auth-user.decorator';
 
 @Resolver(() => User)
 export class UserResolver {
   constructor(private readonly userService: UserService) {}
 
   @Mutation(() => CreateAccountOutput)
+  @Public()
   createAccount(
     @Args('input') createAccountInput: CreateAccountInput,
   ): Promise<CreateAccountOutput> {
@@ -20,8 +23,14 @@ export class UserResolver {
   }
 
   @Mutation(() => LoginOutput)
+  @Public()
   login(@Args('input') loginInput: LoginInput): Promise<LoginOutput> {
     return this.userService.login(loginInput);
+  }
+
+  @Query(() => UserProfileOutput)
+  me(@AuthUser() authUser: User) {
+    return authUser;
   }
 
   @Query(() => UserProfileOutput)

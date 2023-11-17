@@ -3,6 +3,7 @@ import { Reflector } from '@nestjs/core';
 import { GqlExecutionContext } from '@nestjs/graphql';
 import { JwtService } from 'src/jwt/jwt.service';
 import { UserService } from 'src/user/user.service';
+import { IS_PUBLIC_KEY } from './public.decorator';
 
 @Injectable()
 export class AuthGuard implements CanActivate {
@@ -12,8 +13,16 @@ export class AuthGuard implements CanActivate {
     private readonly userService: UserService,
   ) {}
   async canActivate(context: ExecutionContext) {
+    const isPublic = this.reflector.getAllAndOverride<boolean>(IS_PUBLIC_KEY, [
+      context.getHandler(),
+      context.getClass(),
+    ]);
+    if (isPublic) {
+      return true;
+    }
     const gqlContext = GqlExecutionContext.create(context).getContext();
     const token = gqlContext.token;
+    console.log(token);
     if (token) {
       const decoded = this.jwtService.verify(token.toString());
       if (typeof decoded === 'object' && decoded.hasOwnProperty('id')) {
@@ -21,6 +30,7 @@ export class AuthGuard implements CanActivate {
         if (!user) {
           return false;
         }
+        console.log(user);
         gqlContext['user'] = user;
 
         return true;

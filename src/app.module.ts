@@ -11,6 +11,8 @@ import { GraphQLModule } from '@nestjs/graphql';
 import { ApolloDriver } from '@nestjs/apollo';
 import { User } from './user/entity/user.entity';
 import { JwtModule } from './jwt/jwt.module';
+
+const TOKEN_KEY = 'x-jwt';
 @Module({
   imports: [
     ConfigModule.forRoot({
@@ -31,6 +33,11 @@ import { JwtModule } from './jwt/jwt.module';
       driver: ApolloDriver,
       playground: true,
       autoSchemaFile: true,
+      context: ({ req, connection }) => {
+        return {
+          token: req ? req.headers[TOKEN_KEY] : connection.context[TOKEN_KEY],
+        };
+      },
     }),
     TypeOrmModule.forRoot({
       type: 'mysql',
