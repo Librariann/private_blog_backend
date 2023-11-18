@@ -11,6 +11,8 @@ import { GraphQLModule } from '@nestjs/graphql';
 import { ApolloDriver } from '@nestjs/apollo';
 import { User } from './user/entity/user.entity';
 import { JwtModule } from './jwt/jwt.module';
+import { CommentModule } from './comment/comment.module';
+import { Comment } from './comment/entity/comment.entity';
 
 const TOKEN_KEY = 'x-jwt';
 @Module({
@@ -46,7 +48,7 @@ const TOKEN_KEY = 'x-jwt';
       username: process.env.DB_USERNAME,
       password: process.env.DB_PASSWORD,
       database: process.env.DB_NAME,
-      entities: [User, Post],
+      entities: [User, Post, Comment],
       synchronize: process.env.NODE_ENV === 'dev',
     }),
     JwtModule.forRoot({
@@ -55,6 +57,7 @@ const TOKEN_KEY = 'x-jwt';
     UserModule,
     PostModule,
     AuthModule,
+    CommentModule,
   ],
   controllers: [],
   providers: [],
