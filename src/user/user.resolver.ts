@@ -28,8 +28,8 @@ export class UserResolver {
     return this.userService.login(loginInput);
   }
 
-  @Query(() => UserProfileOutput)
-  me(@AuthUser() authUser: User) {
+  @Query(() => User)
+  me(@AuthUser() authUser: User): User {
     return authUser;
   }
 
