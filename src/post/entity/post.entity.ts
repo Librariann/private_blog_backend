@@ -1,7 +1,9 @@
 import { CoreEntity } from 'src/common/entity/core.entity';
-import { Entity, Column } from 'typeorm';
+import { Entity, Column, ManyToOne, OneToMany } from 'typeorm';
 import { Field, ObjectType, InputType } from '@nestjs/graphql';
 import { IsString } from 'class-validator';
+import { Comment } from 'src/comment/entity/comment.entity';
+import { User } from 'src/user/entity/user.entity';
 
 @InputType('PostInputType', { isAbstract: true })
 @ObjectType()
@@ -16,4 +18,12 @@ export class Post extends CoreEntity {
   @Field(() => String)
   @IsString()
   contents: string;
+
+  @Field(() => [User])
+  @ManyToOne(() => User, (user) => user.Posts)
+  user: User;
+
+  @Field(() => [Comment])
+  @OneToMany(() => Comment, (comment) => comment.post)
+  comments: Comment[];
 }

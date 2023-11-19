@@ -5,6 +5,8 @@ import { CreatePostInput, CreatePostOutput } from './dto/create-post.dto';
 import { GetPostListOutput } from './dto/get-post-list.dto';
 import { EditPostInput, EditPostOutput } from './dto/edit-post.dto';
 import { DeletePostOutput } from './dto/delete-post.dto';
+import { User } from 'src/user/entity/user.entity';
+import { AuthUser } from 'src/auth/auth-user.decorator';
 
 @Resolver(() => Post)
 export class PostResolver {
@@ -12,9 +14,10 @@ export class PostResolver {
 
   @Mutation(() => CreatePostOutput)
   createPost(
+    @AuthUser() authUser: User,
     @Args('input') createPostInput: CreatePostInput,
   ): Promise<CreatePostOutput> {
-    return this.postService.createPost(createPostInput);
+    return this.postService.createPost(authUser, createPostInput);
   }
 
   @Mutation(() => EditPostOutput)

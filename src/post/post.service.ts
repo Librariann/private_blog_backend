@@ -6,6 +6,7 @@ import { CreatePostInput, CreatePostOutput } from './dto/create-post.dto';
 import { GetPostListOutput } from './dto/get-post-list.dto';
 import { EditPostInput, EditPostOutput } from './dto/edit-post.dto';
 import { DeletePostOutput } from './dto/delete-post.dto';
+import { User } from 'src/user/entity/user.entity';
 
 @Injectable()
 export class PostService {
@@ -14,14 +15,17 @@ export class PostService {
     private readonly post: Repository<Post>,
   ) {}
 
-  async createPost({
-    title,
-    contents,
-  }: CreatePostInput): Promise<CreatePostOutput> {
+  async createPost(
+    user: User,
+    createPostInput: CreatePostInput,
+  ): Promise<CreatePostOutput> {
     try {
-      await this.post.save(this.post.create({ title, contents }));
+      const newPost = this.post.create(createPostInput);
+      newPost.user = user;
+      await this.post.save(newPost);
       return {
         ok: true,
+        postId: newPost.id,
       };
     } catch (e) {
       console.log(e);
