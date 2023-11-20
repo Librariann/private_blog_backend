@@ -3,6 +3,7 @@ import { Entity, Column, ManyToOne } from 'typeorm';
 import { Field, ObjectType, InputType } from '@nestjs/graphql';
 import { IsString } from 'class-validator';
 import { User } from 'src/user/entity/user.entity';
+import { Post } from 'src/post/entity/post.entity';
 
 @InputType('CommentInputType', { isAbstract: true })
 @ObjectType()
@@ -14,6 +15,13 @@ export class Comment extends CoreEntity {
     eager: true,
   })
   user: User;
+
+  @Field(() => Post)
+  @ManyToOne(() => Post, (post) => post.comments, {
+    onDelete: 'SET NULL',
+    eager: true,
+  })
+  post: Post;
 
   @Column({ nullable: false })
   @Field(() => String)
