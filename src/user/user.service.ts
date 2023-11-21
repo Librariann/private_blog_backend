@@ -74,6 +74,14 @@ export class UserService {
 
   async findById(id: number): Promise<UserProfileOutput> {
     try {
+      const userInfo = await this.user.findOneByOrFail({
+        id,
+      });
+
+      return {
+        ok: true,
+        user: userInfo,
+      };
     } catch (e) {
       console.log(e);
       return {
@@ -81,13 +89,5 @@ export class UserService {
         error: '기능에 이상이 있습니다. 관리자에게 문의해주세요.',
       };
     }
-    const userInfo = await this.user.findOneByOrFail({
-      id,
-    });
-
-    return {
-      ok: true,
-      user: userInfo,
-    };
   }
 }
