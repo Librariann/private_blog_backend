@@ -39,6 +39,7 @@ export class CommentService {
         comment: comment,
         user: commentUser,
       });
+      console.log(newComment);
       await this.comment.save(newComment);
       return {
         ok: true,
