@@ -8,6 +8,7 @@ import { Comment } from './entity/comment.entity';
 import { Repository } from 'typeorm';
 import { User } from 'src/user/entity/user.entity';
 import { Post } from 'src/post/entity/post.entity';
+import { DeleteCommentOutput } from './dto/delete-comment.dto';
 
 @Injectable()
 export class CommentService {
@@ -23,7 +24,7 @@ export class CommentService {
     { postId, comment }: CreateCommentInput,
   ): Promise<CreateCommentOutput> {
     try {
-      const existPost = await this.post.findOne({
+      const existPost = await this.post.findOneOrFail({
         where: {
           id: postId,
         },
@@ -39,7 +40,6 @@ export class CommentService {
         comment: comment,
         user: commentUser,
       });
-      console.log(newComment);
       await this.comment.save(newComment);
       return {
         ok: true,
@@ -50,6 +50,35 @@ export class CommentService {
       return {
         ok: false,
         error: e,
+      };
+    }
+  }
+
+  async deleteComment(commentId: number): Promise<DeleteCommentOutput> {
+    try {
+      const existComment = await this.comment.findOneOrFail({
+        where: {
+          id: commentId,
+        },
+      });
+      if (!existComment) {
+        return {
+          ok: false,
+          error: '해당 댓글이 존재하지 않습니다.',
+        };
+      }
+      await this.comment.delete({
+        id: commentId,
+      });
+      return {
+        ok: true,
+        error: '댓글 삭제가 완료됐습니다.',
+      };
+    } catch (e) {
+      console.log(e);
+      return {
+        ok: false,
+        error: '댓글을 삭제 할 수 없습니다.',
       };
     }
   }
