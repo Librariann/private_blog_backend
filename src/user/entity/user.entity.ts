@@ -1,13 +1,6 @@
 import { CoreEntity } from 'src/common/entity/core.entity';
 import * as bcrypt from 'bcrypt';
-import {
-  BeforeInsert,
-  BeforeUpdate,
-  Column,
-  Entity,
-  ManyToOne,
-  OneToMany,
-} from 'typeorm';
+import { BeforeInsert, BeforeUpdate, Column, Entity, OneToMany } from 'typeorm';
 import { InputType, ObjectType, Field } from '@nestjs/graphql';
 import { IsString, IsEmail, IsNotEmpty } from 'class-validator';
 import { InternalServerErrorException } from '@nestjs/common';
@@ -31,7 +24,7 @@ export class User extends CoreEntity {
   password: string;
 
   @Field(() => [Post])
-  @ManyToOne(() => Post, (post) => post.user)
+  @OneToMany(() => Post, (post) => post.user)
   Posts: Post[];
 
   @Field(() => [Comment])
