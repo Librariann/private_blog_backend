@@ -7,6 +7,7 @@ import {
 import { User } from 'src/user/entity/user.entity';
 import { AuthUser } from 'src/auth/auth-user.decorator';
 import { DeleteCommentOutput } from './dto/delete-comment.dto';
+import { EditCommentInput, EditCommentOutput } from './dto/edit-comment.dto';
 
 @Resolver()
 export class CommentResolver {
@@ -18,6 +19,13 @@ export class CommentResolver {
     @Args('input') createCommentInput: CreateCommentInput,
   ): Promise<CreateCommentOutput> {
     return this.commentService.createComment(authUser, createCommentInput);
+  }
+  @Mutation(() => EditCommentOutput)
+  editComment(
+    @AuthUser() user: User,
+    @Args('input') editCommentInput: EditCommentInput,
+  ): Promise<EditCommentOutput> {
+    return this.commentService.editComment(user, editCommentInput);
   }
 
   @Mutation(() => DeleteCommentOutput)

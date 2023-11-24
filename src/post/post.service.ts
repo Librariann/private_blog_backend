@@ -56,7 +56,7 @@ export class PostService {
       console.log(e);
       return {
         ok: false,
-        error: '게시글을 수정 할  수 없습니다.',
+        error: '게시글을 수정 할 수 없습니다.',
       };
     }
   }

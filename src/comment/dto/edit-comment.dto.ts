@@ -6,4 +6,4 @@ import { Comment } from '../entity/comment.entity';
 export class EditCommentInput extends PickType(Comment, ['id', 'comment']) {}
 
 @ObjectType()
-export class EditPostOutput extends Output {}
+export class EditCommentOutput extends Output {}
