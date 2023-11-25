@@ -22,9 +22,10 @@ export class PostResolver {
 
   @Mutation(() => EditPostOutput)
   editPost(
+    @AuthUser() postUser: User,
     @Args('input') editPostInput: EditPostInput,
   ): Promise<EditPostOutput> {
-    return this.postService.editPost(editPostInput);
+    return this.postService.editPost(postUser, editPostInput);
   }
 
   @Mutation(() => DeletePostOutput)

@@ -36,12 +36,33 @@ export class PostService {
     }
   }
 
-  async editPost({
-    id,
-    title,
-    contents,
-  }: EditPostInput): Promise<EditPostOutput> {
+  async editPost(
+    user: User,
+    { id, title, contents }: EditPostInput,
+  ): Promise<EditPostOutput> {
     try {
+      const existPost = await this.post.findOneOrFail({
+        where: {
+          id,
+        },
+      });
+
+      const compareUserBool = this.comparePostUser(user, existPost);
+
+      if (!compareUserBool) {
+        return {
+          ok: false,
+          error: '작성된 글의 유저가 아닙니다.',
+        };
+      }
+
+      if (!existPost) {
+        return {
+          ok: false,
+          error: '해당 글이 존재하지 않습니다.',
+        };
+      }
+
       await this.post.save([
         {
           id,
@@ -103,5 +124,14 @@ export class PostService {
         error: '리스트를 가져올 수 없습니다.',
       };
     }
+  }
+
+  comparePostUser(user: User, post: Post): boolean {
+    let allowed = true;
+    if (user.id !== post.user.id) {
+      allowed = false;
+    }
+
+    return allowed;
   }
 }
