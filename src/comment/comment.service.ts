@@ -65,9 +65,10 @@ export class CommentService {
           id,
         },
       });
-      const { id: commentUserId } = existComment.user;
 
-      if (commentUserId !== user.id) {
+      const compareUserBool = this.compareCommentUser(user, existComment);
+
+      if (!compareUserBool) {
         return {
           ok: false,
           error: '작성된 댓글의 유저가 아닙니다.',
@@ -80,6 +81,7 @@ export class CommentService {
           error: '해당 댓글이 존재하지 않습니다.',
         };
       }
+
       await this.comment.save([
         {
           id,
@@ -126,5 +128,14 @@ export class CommentService {
         error: '댓글을 삭제 할 수 없습니다.',
       };
     }
+  }
+
+  compareCommentUser(user: User, comment: Comment): boolean {
+    let allowed = true;
+    if (user.id !== comment.user.id) {
+      allowed = false;
+    }
+
+    return allowed;
   }
 }
