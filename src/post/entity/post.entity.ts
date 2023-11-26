@@ -19,6 +19,11 @@ export class Post extends CoreEntity {
   @IsString()
   contents: string;
 
+  @Column({ nullable: false })
+  @Field(() => String)
+  @IsString()
+  category: string;
+
   @Field(() => [User])
   @ManyToOne(() => User, (user) => user.Posts)
   user: User;
