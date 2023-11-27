@@ -7,12 +7,16 @@ import { GetPostListOutput } from './dto/get-post-list.dto';
 import { EditPostInput, EditPostOutput } from './dto/edit-post.dto';
 import { DeletePostOutput } from './dto/delete-post.dto';
 import { User } from 'src/user/entity/user.entity';
+import { Category } from 'src/category/entity/category.entity';
 
 @Injectable()
 export class PostService {
   constructor(
     @InjectRepository(Post)
     private readonly post: Repository<Post>,
+
+    @InjectRepository(Category)
+    private readonly category: Repository<Category>,
   ) {}
 
   async createPost(
@@ -20,8 +24,18 @@ export class PostService {
     createPostInput: CreatePostInput,
   ): Promise<CreatePostOutput> {
     try {
+      const getCategory = await this.category.findOneByOrFail({
+        id: createPostInput.categoryId,
+      });
+      if (!getCategory) {
+        return {
+          ok: false,
+          error: '카테고리가 없습니다 다시한번 확인해주세요.',
+        };
+      }
       const newPost = this.post.create(createPostInput);
       newPost.user = user;
+      newPost.category = getCategory;
       await this.post.save(newPost);
       return {
         ok: true,

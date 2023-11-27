@@ -6,16 +6,12 @@ import {
   CreateCategoryInput,
   CreateCategoryOutput,
 } from './dto/create-category.dto';
-import { Post } from 'src/post/entity/post.entity';
 
 @Injectable()
 export class CategoryService {
   constructor(
     @InjectRepository(Category)
     private readonly category: Repository<Category>,
-
-    @InjectRepository(Post)
-    private readonly post: Repository<Post>,
   ) {}
 
   async createCategory({
