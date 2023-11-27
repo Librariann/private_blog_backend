@@ -8,8 +8,9 @@ import { User } from 'src/user/entity/user.entity';
 import { AuthUser } from 'src/auth/auth-user.decorator';
 import { DeleteCommentOutput } from './dto/delete-comment.dto';
 import { EditCommentInput, EditCommentOutput } from './dto/edit-comment.dto';
+import { Comment } from './entity/comment.entity';
 
-@Resolver()
+@Resolver(() => Comment)
 export class CommentResolver {
   constructor(private readonly commentService: CommentService) {}
 

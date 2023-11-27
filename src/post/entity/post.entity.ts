@@ -4,6 +4,7 @@ import { Field, ObjectType, InputType } from '@nestjs/graphql';
 import { IsString } from 'class-validator';
 import { Comment } from 'src/comment/entity/comment.entity';
 import { User } from 'src/user/entity/user.entity';
+import { Category } from 'src/category/entity/category.entity';
 
 @InputType('PostInputType', { isAbstract: true })
 @ObjectType()
@@ -19,10 +20,9 @@ export class Post extends CoreEntity {
   @IsString()
   contents: string;
 
-  @Column({ nullable: false })
-  @Field(() => String)
-  @IsString()
-  category: string;
+  @Field(() => [Category])
+  @ManyToOne(() => Category, (Category) => Category.post)
+  category: Category;
 
   @Field(() => [User])
   @ManyToOne(() => User, (user) => user.Posts)
