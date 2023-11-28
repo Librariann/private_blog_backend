@@ -23,6 +23,11 @@ export class User extends CoreEntity {
   @IsString()
   password: string;
 
+  @Column({ select: false })
+  @Field(() => String)
+  @IsString()
+  profileImage: string;
+
   @Field(() => [Post])
   @OneToMany(() => Post, (post) => post.user)
   Posts: Post[];
