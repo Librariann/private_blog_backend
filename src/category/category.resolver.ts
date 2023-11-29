@@ -1,4 +1,4 @@
-import { Args, Int, Mutation, Resolver } from '@nestjs/graphql';
+import { Args, Int, Mutation, Query, Resolver } from '@nestjs/graphql';
 import {
   CreateCategoryInput,
   CreateCategoryOutput,
@@ -7,6 +7,7 @@ import { Category } from './entity/category.entity';
 import { CategoryService } from './category.service';
 import { DeleteCategoryOutput } from './dto/delete-category.dto';
 import { EditCategoryInput, EditCategoryOutput } from './dto/edit-category.dto';
+import { GetCategoriesOutput } from './dto/get-categories.dto';
 
 @Resolver(() => Category)
 export class CategoryResolver {
@@ -31,5 +32,10 @@ export class CategoryResolver {
     @Args('categoryId', { type: () => Int }) categoryId: number,
   ): Promise<DeleteCategoryOutput> {
     return this.categoryService.deleteCategory(categoryId);
+  }
+
+  @Query(() => GetCategoriesOutput)
+  getCategories(): Promise<GetCategoriesOutput> {
+    return this.categoryService.getCategories();
   }
 }

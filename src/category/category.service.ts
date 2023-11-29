@@ -8,6 +8,7 @@ import {
 } from './dto/create-category.dto';
 import { DeleteCategoryOutput } from './dto/delete-category.dto';
 import { EditCategoryInput, EditCategoryOutput } from './dto/edit-category.dto';
+import { GetCategoriesOutput } from './dto/get-categories.dto';
 
 @Injectable()
 export class CategoryService {
@@ -96,7 +97,22 @@ export class CategoryService {
       console.log(e);
       return {
         ok: false,
-        error: '카테고리를 삭제 할 수 없습니다. 관리자에게 문의해 주세요',
+        error: '카테고리를 삭제 할 수 없습니다. 관리자에게 문의해 주세요.',
+      };
+    }
+  }
+
+  async getCategories(): Promise<GetCategoriesOutput> {
+    try {
+      const getCategories = await this.category.find();
+      return {
+        ok: true,
+        categories: getCategories,
+      };
+    } catch (e) {
+      return {
+        ok: false,
+        error: '카테고리를 가져 올 수 없습니다. 관리자에게 문의해 주세요.',
       };
     }
   }
