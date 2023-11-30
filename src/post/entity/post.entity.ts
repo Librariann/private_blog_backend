@@ -1,7 +1,7 @@
 import { CoreEntity } from 'src/common/entity/core.entity';
 import { Entity, Column, ManyToOne, OneToMany } from 'typeorm';
-import { Field, ObjectType, InputType } from '@nestjs/graphql';
-import { IsString } from 'class-validator';
+import { Field, ObjectType, InputType, Int } from '@nestjs/graphql';
+import { IsInt, IsString } from 'class-validator';
 import { Comment } from 'src/comment/entity/comment.entity';
 import { User } from 'src/user/entity/user.entity';
 import { Category } from 'src/category/entity/category.entity';
@@ -19,6 +19,11 @@ export class Post extends CoreEntity {
   @Field(() => String)
   @IsString()
   contents: string;
+
+  @Column({ nullable: false })
+  @Field(() => Int)
+  @IsInt()
+  hits: number;
 
   @Field(() => [Category])
   @ManyToOne(() => Category, (Category) => Category.post)
