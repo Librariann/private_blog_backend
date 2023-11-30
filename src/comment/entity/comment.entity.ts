@@ -16,7 +16,6 @@ export class Comment extends CoreEntity {
   })
   user: User;
 
-  @Field(() => Post)
   @ManyToOne(() => Post, (post) => post.comments, {
     onDelete: 'SET NULL',
     eager: true,

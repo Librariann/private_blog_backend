@@ -13,7 +13,6 @@ export class Category extends CoreEntity {
   @IsString()
   categoryTitle: string;
 
-  @Field(() => Post)
   @OneToMany(() => Post, (post) => post.category, {
     onDelete: 'SET NULL',
     eager: true,
