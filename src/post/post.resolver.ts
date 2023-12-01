@@ -7,6 +7,7 @@ import { EditPostInput, EditPostOutput } from './dto/edit-post.dto';
 import { DeletePostOutput } from './dto/delete-post.dto';
 import { User } from 'src/user/entity/user.entity';
 import { AuthUser } from 'src/auth/auth-user.decorator';
+import { IsNull } from 'typeorm';
 
 @Resolver(() => Post)
 export class PostResolver {
@@ -31,6 +32,11 @@ export class PostResolver {
   @Mutation(() => DeletePostOutput)
   deletePost(@Args('postId', { type: () => Int }) postId: number) {
     return this.postService.deletePost(postId);
+  }
+
+  @Mutation(() => IsNull)
+  updatePostHits(@Args('postId', {type: () => Int}) postId: number) {
+    return this.postService.updatePostHits(postId);
   }
 
   @Query(() => GetPostListOutput)
