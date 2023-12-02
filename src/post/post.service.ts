@@ -1,13 +1,13 @@
 import { Injectable } from '@nestjs/common';
 import { Repository } from 'typeorm';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Post } from './entity/post.entity';
 import { CreatePostInput, CreatePostOutput } from './dto/create-post.dto';
 import { GetPostListOutput } from './dto/get-post-list.dto';
 import { EditPostInput, EditPostOutput } from './dto/edit-post.dto';
 import { DeletePostOutput } from './dto/delete-post.dto';
 import { User } from 'src/user/entity/user.entity';
 import { Category } from 'src/category/entity/category.entity';
+import { Post } from 'src/post/entity/post.entity';
 
 @Injectable()
 export class PostService {
@@ -55,11 +55,7 @@ export class PostService {
     { id, title, contents }: EditPostInput,
   ): Promise<EditPostOutput> {
     try {
-      const existPost = await this.post.findOneOrFail({
-        where: {
-          id,
-        },
-      });
+      const existPost = await this.getPostFindOne(id);
 
       const compareUserBool = this.comparePostUser(user, existPost);
 
@@ -125,6 +121,21 @@ export class PostService {
     }
   }
 
+  async updatePostHits(postId: number): Promise<null> {
+    try {
+      const existPost = await this.getPostFindOne(postId);
+      await this.post.save([
+        {
+          hits: existPost.hits + 1,
+        },
+      ]);
+
+      return null!;
+    } catch (e) {
+      console.log(e);
+    }
+  }
+
   async getPostList(): Promise<GetPostListOutput> {
     try {
       const postList = await this.post.find();
@@ -140,6 +151,18 @@ export class PostService {
     }
   }
 
+  //post find one
+  async getPostFindOne(postId: number): Promise<Post> {
+    const post = await this.post.findOneOrFail({
+      where: {
+        id: postId,
+      },
+    });
+
+    return post;
+  }
+
+  //유저 비교
   comparePostUser(user: User, post: Post): boolean {
     let allowed = true;
     if (user.id !== post.user.id) {

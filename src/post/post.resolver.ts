@@ -35,7 +35,7 @@ export class PostResolver {
   }
 
   @Mutation(() => IsNull)
-  updatePostHits(@Args('postId', {type: () => Int}) postId: number) {
+  updatePostHits(@Args('postId', { type: () => Int }) postId: number) {
     return this.postService.updatePostHits(postId);
   }
 
