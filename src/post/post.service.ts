@@ -8,6 +8,7 @@ import { DeletePostOutput } from './dto/delete-post.dto';
 import { User } from 'src/user/entity/user.entity';
 import { Category } from 'src/category/entity/category.entity';
 import { Post } from 'src/post/entity/post.entity';
+import { UpdatePostHitsOutput } from './dto/update-post-hits.dto';
 
 @Injectable()
 export class PostService {
@@ -121,16 +122,24 @@ export class PostService {
     }
   }
 
-  async updatePostHits(postId: number): Promise<null> {
+  async updatePostHits(postId: number): Promise<UpdatePostHitsOutput> {
     try {
       const existPost = await this.getPostFindOne(postId);
+      if (!existPost) {
+        return {
+          ok: false,
+          error: '해당 게시글이 존재하지 않습니다. 다시한번 확인해주세요.',
+        };
+      }
       await this.post.save([
         {
           hits: existPost.hits + 1,
         },
       ]);
 
-      return null!;
+      return {
+        ok: true,
+      };
     } catch (e) {
       console.log(e);
     }
