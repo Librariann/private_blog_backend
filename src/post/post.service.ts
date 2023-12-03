@@ -133,6 +133,7 @@ export class PostService {
       }
       await this.post.save([
         {
+          id: postId,
           hits: existPost.hits + 1,
         },
       ]);
