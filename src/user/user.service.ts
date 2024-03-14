@@ -82,7 +82,6 @@ export class UserService {
         where: { id },
         relations: ['posts', 'comments'],
       });
-      console.log(userInfo);
       return {
         ok: true,
         user: userInfo,
