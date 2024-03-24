@@ -1,4 +1,9 @@
-import { CanActivate, ExecutionContext, Injectable } from '@nestjs/common';
+import {
+  CanActivate,
+  ExecutionContext,
+  Injectable,
+  UnauthorizedException,
+} from '@nestjs/common';
 import { Reflector } from '@nestjs/core';
 import { GqlExecutionContext } from '@nestjs/graphql';
 import { JwtService } from 'src/jwt/jwt.service';
@@ -23,17 +28,25 @@ export class AuthGuard implements CanActivate {
     const gqlContext = GqlExecutionContext.create(context).getContext();
     const token = gqlContext.token;
     if (token) {
-      const decoded = this.jwtService.verify(token.toString());
-      if (typeof decoded === 'object' && decoded.hasOwnProperty('id')) {
-        const { user } = await this.userService.findById(decoded['id']);
-        if (!user) {
+      try {
+        const decoded = this.jwtService.verify(token.toString());
+        console.log(decoded);
+        if (typeof decoded === 'object' && decoded.hasOwnProperty('id')) {
+          const { user } = await this.userService.findById(decoded['id']);
+          if (!user) {
+            return false;
+          }
+          gqlContext['user'] = user;
+
+          return true;
+        } else {
           return false;
         }
-        gqlContext['user'] = user;
-
-        return true;
-      } else {
-        return false;
+      } catch (e) {
+        if (e.name === 'TokenExpiredError') {
+          throw new UnauthorizedException('Token has expired');
+        }
+        throw new UnauthorizedException('Invalid token');
       }
     } else {
       return false;
