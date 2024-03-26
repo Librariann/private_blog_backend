@@ -2,7 +2,6 @@ import { Inject, Injectable } from '@nestjs/common';
 import * as jwt from 'jsonwebtoken';
 import { CONFIG_OPTIONS } from 'src/common/common.constants';
 import { JwtModuleOptions } from './jwt.interface';
-import { error } from 'console';
 
 @Injectable()
 export class JwtService {
@@ -15,14 +14,6 @@ export class JwtService {
     });
   }
   verify(token: string) {
-    try {
-      return jwt.verify(token, this.options.privateKey);
-    } catch (e) {
-      if (e.name === 'TokenExpiredError') {
-        console.log('Token has expired');
-      } else {
-        console.log('Invalid token');
-      }
-    }
+    return jwt.verify(token, this.options.privateKey);
   }
 }
