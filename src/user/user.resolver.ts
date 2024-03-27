@@ -9,6 +9,7 @@ import { UserProfileOutput } from './dto/user-profile.dto';
 import { LoginInput, LoginOutput } from './dto/login.dto';
 import { Public } from 'src/auth/public.decorator';
 import { AuthUser } from 'src/auth/auth-user.decorator';
+import { ChangePasswordOutput } from './dto/change-password-ouput.dto';
 
 @Resolver(() => User)
 export class UserResolver {
@@ -38,5 +39,13 @@ export class UserResolver {
     @Args('userId', { type: () => Int }) userId: number,
   ): Promise<UserProfileOutput> {
     return this.userService.findById(userId);
+  }
+
+  @Mutation(() => ChangePasswordOutput)
+  changePassword(
+    @AuthUser() AuthUser: User,
+    @Args('password', { type: () => String }) password: string,
+  ) {
+    return this.userService.modifyUserPassword(AuthUser, password);
   }
 }
