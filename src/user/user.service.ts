@@ -1,5 +1,4 @@
 import { InjectRepository } from '@nestjs/typeorm';
-import { User } from './entity/user.entity';
 import { Repository } from 'typeorm';
 import {
   CreateAccountInput,
@@ -9,6 +8,8 @@ import { UserProfileOutput } from './dto/user-profile.dto';
 import { LoginInput, LoginOutput } from './dto/login.dto';
 import { JwtService } from 'src/jwt/jwt.service';
 import { logger } from 'src/logger/winston';
+import { ChangePasswordOutput } from './dto/change-password-ouput.dto';
+import { User } from 'src/user/entity/user.entity';
 
 export class UserService {
   constructor(
@@ -91,6 +92,35 @@ export class UserService {
       return {
         ok: false,
         error: '기능에 이상이 있습니다. 관리자에게 문의해주세요.',
+      };
+    }
+  }
+
+  async modifyUserPassword(
+    { id }: User,
+    password: string,
+  ): Promise<ChangePasswordOutput> {
+    try {
+      const getUserInfo = await this.findById(id);
+      if (!getUserInfo) {
+        return {
+          ok: false,
+          message: '유저가 없습니다.',
+        };
+      }
+
+      getUserInfo.user.password = password;
+
+      await this.user.save(getUserInfo.user);
+
+      return {
+        ok: true,
+        message: '비밀번호가 변경 됐습니다.',
+      };
+    } catch (e) {
+      return {
+        ok: false,
+        message: `비밀번호 변경에 실패했습니다 - ${e}`,
       };
     }
   }
