@@ -9,7 +9,7 @@ import { UserProfileOutput } from './dto/user-profile.dto';
 import { LoginInput, LoginOutput } from './dto/login.dto';
 import { Public } from 'src/auth/public.decorator';
 import { AuthUser } from 'src/auth/auth-user.decorator';
-import { ChangePasswordOutput } from './dto/change-password-ouput.dto';
+import { UpdatePasswordOutput } from './dto/update-password.dto';
 
 @Resolver(() => User)
 export class UserResolver {
@@ -41,11 +41,11 @@ export class UserResolver {
     return this.userService.findById(userId);
   }
 
-  @Mutation(() => ChangePasswordOutput)
-  changePassword(
+  @Mutation(() => UpdatePasswordOutput)
+  updatePassword(
     @AuthUser() AuthUser: User,
     @Args('password', { type: () => String }) password: string,
   ) {
-    return this.userService.modifyUserPassword(AuthUser, password);
+    return this.userService.updatePassword(AuthUser, password);
   }
 }
