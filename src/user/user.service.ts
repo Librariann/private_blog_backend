@@ -8,7 +8,7 @@ import { UserProfileOutput } from './dto/user-profile.dto';
 import { LoginInput, LoginOutput } from './dto/login.dto';
 import { JwtService } from 'src/jwt/jwt.service';
 import { logger } from 'src/logger/winston';
-import { ChangePasswordOutput } from './dto/change-password-ouput.dto';
+import { UpdatePasswordOutput } from './dto/update-password.dto';
 import { User } from 'src/user/entity/user.entity';
 
 export class UserService {
@@ -96,10 +96,10 @@ export class UserService {
     }
   }
 
-  async modifyUserPassword(
+  async updatePassword(
     { id }: User,
     password: string,
-  ): Promise<ChangePasswordOutput> {
+  ): Promise<UpdatePasswordOutput> {
     try {
       const getUserInfo = await this.findById(id);
       if (!getUserInfo) {
