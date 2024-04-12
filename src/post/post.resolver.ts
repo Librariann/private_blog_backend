@@ -8,6 +8,7 @@ import { DeletePostOutput } from './dto/delete-post.dto';
 import { User } from 'src/user/entity/user.entity';
 import { AuthUser } from 'src/auth/auth-user.decorator';
 import { UpdatePostHitsOutput } from './dto/update-post-hits.dto';
+import { GetPostOneOutput } from './dto/get-post-one.dto';
 
 @Resolver(() => Post)
 export class PostResolver {
@@ -42,5 +43,12 @@ export class PostResolver {
   @Query(() => GetPostListOutput)
   getPostList(): Promise<GetPostListOutput> {
     return this.postService.getPostList();
+  }
+
+  @Query(() => GetPostOneOutput, { nullable: true })
+  getPostOne(
+    @Args('postId', { type: () => Int }) postId: number,
+  ): Promise<GetPostOneOutput> {
+    return this.postService.getPostFindOne(postId);
   }
 }
