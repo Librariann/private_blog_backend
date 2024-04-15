@@ -15,6 +15,8 @@ import { CommentModule } from './comment/comment.module';
 import { Comment } from './comment/entity/comment.entity';
 import { CategoryModule } from './category/category.module';
 import { Category } from './category/entity/category.entity';
+import { HashtagModule } from './hashtag/hashtag.module';
+import { Hashtag } from './hashtag/entity/hashtag.entity';
 
 const TOKEN_KEY = 'x-jwt';
 @Module({
@@ -50,7 +52,7 @@ const TOKEN_KEY = 'x-jwt';
       username: process.env.DB_USERNAME,
       password: process.env.DB_PASSWORD,
       database: process.env.DB_NAME,
-      entities: [User, Post, Comment, Category],
+      entities: [User, Post, Comment, Category, Hashtag],
       synchronize: process.env.NODE_ENV === 'dev',
     }),
     JwtModule.forRoot({
@@ -61,8 +63,8 @@ const TOKEN_KEY = 'x-jwt';
     AuthModule,
     CommentModule,
     CategoryModule,
+    HashtagModule,
   ],
-  controllers: [],
   providers: [],
 })
 export class AppModule {}
