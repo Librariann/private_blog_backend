@@ -5,6 +5,7 @@ import { IsInt, IsString } from 'class-validator';
 import { Comment } from 'src/comment/entity/comment.entity';
 import { User } from 'src/user/entity/user.entity';
 import { Category } from 'src/category/entity/category.entity';
+import { Hashtag } from 'src/hashtag/entity/hashtag.entity';
 
 @InputType('PostInputType', { isAbstract: true })
 @ObjectType()
@@ -36,4 +37,8 @@ export class Post extends CoreEntity {
   @Field(() => [Comment])
   @OneToMany(() => Comment, (comment) => comment.post)
   comments: Comment[];
+
+  @Field(() => [Hashtag])
+  @OneToMany(() => Hashtag, (hashtag) => hashtag.post)
+  hashtags: Hashtag[];
 }
