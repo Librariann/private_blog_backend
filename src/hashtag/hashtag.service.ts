@@ -3,8 +3,6 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Hashtag } from './entity/hashtag.entity';
 import { Repository } from 'typeorm';
 import { GetHashTagOutput } from './dto/get-hashtag-list.dto';
-import { ok } from 'assert';
-import { error } from 'console';
 import { CreateHashTagOutput } from './dto/create-hashtag.dto';
 
 @Injectable()
