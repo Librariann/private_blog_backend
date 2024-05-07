@@ -6,7 +6,10 @@ import {
   CreateHashTagInput,
   CreateHashTagOutput,
 } from './dto/create-hashtag.dto';
-import { UpdateHashTagOutput } from './dto/update-hashtag.dto';
+import {
+  UpdateHashTagInput,
+  UpdateHashTagOutput,
+} from './dto/update-hashtag.dto';
 
 @Resolver(() => Hashtag)
 export class HashtagResolver {
@@ -21,9 +24,9 @@ export class HashtagResolver {
 
   @Mutation(() => UpdateHashTagOutput)
   updateHashTag(
-    @Args('postId', { type: () => Int }) postId: number,
+    @Args('input') updateHashTagInput: UpdateHashTagInput,
   ): Promise<UpdateHashTagOutput> {
-    return this.hashtagService.updateHashTag(postId);
+    return this.hashtagService.updateHashTag(updateHashTagInput);
   }
 
   @Query(() => GetHashTagOutput)
