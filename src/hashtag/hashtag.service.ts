@@ -8,7 +8,10 @@ import {
   CreateHashTagOutput,
 } from './dto/create-hashtag.dto';
 import { Post } from 'src/post/entity/post.entity';
-import { UpdateHashTagOutput } from './dto/update-hashtag.dto';
+import {
+  UpdateHashTagInput,
+  UpdateHashTagOutput,
+} from './dto/update-hashtag.dto';
 
 @Injectable()
 export class HashtagService {
@@ -76,15 +79,48 @@ export class HashtagService {
     }
   }
 
-  async updateHashTag(postId: number): Promise<UpdateHashTagOutput> {
+  async updateHashTag({
+    hashtag,
+    postId,
+  }: UpdateHashTagInput): Promise<UpdateHashTagOutput> {
     try {
-      const hashtags = await this.hashtag.find({
+      const existHashtags = await this.hashtag.find({
         where: {
           postId,
         },
       });
 
-      console.log(hashtags);
+      // 현재 해시태그를 배열로 변환
+      const existingHashtagNames = existHashtags.map((tag) => tag.hashtag);
+      const newHashtags = hashtag.split(',');
+
+      // 추가할 해시태그와 삭제할 해시태그 결정
+      const hashtagsToAdd = newHashtags.filter(
+        (tag) => !existingHashtagNames.includes(tag),
+      );
+      const hashtagsToRemove = existingHashtagNames.filter(
+        (tag) => !newHashtags.includes(tag),
+      );
+
+      // 새로운 해시태그 추가
+      for (const hashtag of hashtagsToAdd) {
+        await this.hashtag.save({
+          hashtag,
+          postId,
+        });
+      }
+
+      // 기존 해시태그 삭제
+      for (const hashtag of hashtagsToRemove) {
+        await this.hashtag.delete({
+          hashtag,
+          postId,
+        });
+      }
+
+      return {
+        ok: true,
+      };
     } catch (e) {
       return {
         ok: false,
