@@ -7,7 +7,11 @@ import { Category } from './entity/category.entity';
 import { CategoryService } from './category.service';
 import { DeleteCategoryOutput } from './dto/delete-category.dto';
 import { EditCategoryInput, EditCategoryOutput } from './dto/edit-category.dto';
-import { GetCategoriesOutput } from './dto/get-categories.dto';
+import {
+  GetCategoriesCountOutput,
+  GetCategoriesOutput,
+} from './dto/get-categories.dto';
+import { Public } from 'src/auth/public.decorator';
 
 @Resolver(() => Category)
 export class CategoryResolver {
@@ -35,7 +39,14 @@ export class CategoryResolver {
   }
 
   @Query(() => GetCategoriesOutput)
+  @Public()
   getCategories(): Promise<GetCategoriesOutput> {
     return this.categoryService.getCategories();
+  }
+
+  @Query(() => GetCategoriesCountOutput)
+  @Public()
+  getCategoriesCounts(): Promise<GetCategoriesCountOutput> {
+    return this.categoryService.getCategoryCounts();
   }
 }
