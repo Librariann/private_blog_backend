@@ -8,7 +8,10 @@ import {
 } from './dto/create-category.dto';
 import { DeleteCategoryOutput } from './dto/delete-category.dto';
 import { EditCategoryInput, EditCategoryOutput } from './dto/edit-category.dto';
-import { GetCategoriesOutput } from './dto/get-categories.dto';
+import {
+  GetCategoriesCountOutput,
+  GetCategoriesOutput,
+} from './dto/get-categories.dto';
 
 @Injectable()
 export class CategoryService {
@@ -123,5 +126,20 @@ export class CategoryService {
     });
 
     return category;
+  }
+
+  async getCategoryCounts(): Promise<GetCategoriesCountOutput> {
+    const categoryCounts = await this.category
+      .createQueryBuilder('a')
+      .leftJoin('post', 'b', 'a.id = b.categoryId') // 'post' 테이블과의 조인
+      .select('a.categoryTitle', 'categoryTitle')
+      .addSelect('COUNT(a.categoryTitle)', 'count')
+      .groupBy('a.id')
+      .getRawMany(); // 결과를 원시 데이터 형태로 가져옴
+
+    return {
+      ok: true,
+      categoryCounts: categoryCounts,
+    };
   }
 }
