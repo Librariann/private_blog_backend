@@ -134,6 +134,7 @@ export class CategoryService {
       .leftJoin('post', 'b', 'a.id = b.categoryId') // 'post' 테이블과의 조인
       .select('a.categoryTitle', 'categoryTitle')
       .addSelect('COUNT(a.categoryTitle)', 'count')
+      .addSelect('a.id', 'id')
       .groupBy('a.id')
       .getRawMany(); // 결과를 원시 데이터 형태로 가져옴
 
