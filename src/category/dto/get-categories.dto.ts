@@ -4,6 +4,9 @@ import { Category } from '../entity/category.entity';
 
 @ObjectType()
 export class CategoryCount {
+  @Field(() => Int)
+  id: number;
+
   @Field(() => String)
   categoryTitle: string;
 
