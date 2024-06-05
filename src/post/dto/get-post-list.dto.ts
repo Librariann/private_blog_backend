@@ -7,3 +7,9 @@ export class GetPostListOutput extends Output {
   @Field(() => [Post], { nullable: true })
   posts?: Post[];
 }
+
+@ObjectType()
+export class getPostListByCategoryIdOutput extends Output {
+  @Field(() => [Post], { nullable: true })
+  posts?: Post[];
+}
