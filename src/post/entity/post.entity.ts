@@ -1,5 +1,5 @@
 import { CoreEntity } from 'src/common/entity/core.entity';
-import { Entity, Column, ManyToOne, OneToMany } from 'typeorm';
+import { Entity, Column, ManyToOne, OneToMany, RelationId } from 'typeorm';
 import { Field, ObjectType, InputType, Int } from '@nestjs/graphql';
 import { IsInt, IsString } from 'class-validator';
 import { Comment } from 'src/comment/entity/comment.entity';
@@ -29,6 +29,9 @@ export class Post extends CoreEntity {
   @Field(() => Category)
   @ManyToOne(() => Category, (Category) => Category.post)
   category: Category;
+
+  @RelationId((post: Post) => post.category)
+  categoryId: number;
 
   // @Field(() => [User])
   @ManyToOne(() => User, (user) => user.posts)
