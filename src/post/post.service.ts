@@ -2,7 +2,10 @@ import { Injectable } from '@nestjs/common';
 import { Repository } from 'typeorm';
 import { InjectRepository } from '@nestjs/typeorm';
 import { CreatePostInput, CreatePostOutput } from './dto/create-post.dto';
-import { GetPostListOutput } from './dto/get-post-list.dto';
+import {
+  getPostListByCategoryIdOutput,
+  GetPostListOutput,
+} from './dto/get-post-list.dto';
 import { EditPostInput, EditPostOutput } from './dto/edit-post.dto';
 import { DeletePostOutput } from './dto/delete-post.dto';
 import { User } from 'src/user/entity/user.entity';
@@ -11,6 +14,7 @@ import { Post } from 'src/post/entity/post.entity';
 import { UpdatePostHitsOutput } from './dto/update-post-hits.dto';
 import { GetPostOneOutput } from './dto/get-post-one.dto';
 import { logger } from 'src/logger/winston';
+import { CategoryService } from 'src/category/category.service';
 
 @Injectable()
 export class PostService {
@@ -20,6 +24,8 @@ export class PostService {
 
     @InjectRepository(Category)
     private readonly category: Repository<Category>,
+
+    private readonly categoryService: CategoryService,
   ) {}
 
   async createPost(
@@ -186,6 +192,38 @@ export class PostService {
       };
     } catch (e) {
       logger.error(e);
+      return {
+        ok: false,
+        error: `관리자에게 문의해주세요 ${e}`,
+      };
+    }
+  }
+
+  async getPostListByCategoryId(
+    categoryId: number,
+  ): Promise<getPostListByCategoryIdOutput> {
+    try {
+      const category = this.categoryService.findOneCategoryById(categoryId);
+      console.log(category);
+      // const posts = await this.post.find({
+      //   where: {
+      //     categoryId,
+      //   },
+      //   relations: ['category', 'comments'],
+      // });
+
+      // if (!posts) {
+      //   return {
+      //     ok: false,
+      //     error: '게시물이 존재하지 않습니다.',
+      //   };
+      // }
+
+      return {
+        ok: true,
+        // posts,
+      };
+    } catch (e) {
       return {
         ok: false,
         error: `관리자에게 문의해주세요 ${e}`,
