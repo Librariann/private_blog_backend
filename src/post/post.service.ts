@@ -12,7 +12,7 @@ import { User } from 'src/user/entity/user.entity';
 import { Category } from 'src/category/entity/category.entity';
 import { Post } from 'src/post/entity/post.entity';
 import { UpdatePostHitsOutput } from './dto/update-post-hits.dto';
-import { GetPostOneOutput } from './dto/get-post-one.dto';
+import { GetPostByIdOutput } from './dto/get-post-by-id.dto';
 import { logger } from 'src/logger/winston';
 import { CategoryService } from 'src/category/category.service';
 
@@ -170,7 +170,7 @@ export class PostService {
   }
 
   //post find one
-  async getPostFindOne(postId: number): Promise<GetPostOneOutput> {
+  async getPostFindOne(postId: number): Promise<GetPostByIdOutput> {
     try {
       const post = await this.post.findOne({
         where: {
@@ -203,25 +203,25 @@ export class PostService {
     categoryId: number,
   ): Promise<getPostListByCategoryIdOutput> {
     try {
-      const category = this.categoryService.findOneCategoryById(categoryId);
-      console.log(category);
-      // const posts = await this.post.find({
-      //   where: {
-      //     categoryId,
-      //   },
-      //   relations: ['category', 'comments'],
-      // });
+      const posts = await this.post.find({
+        where: {
+          category: {
+            id: categoryId,
+          },
+        },
+        relations: ['category', 'comments'],
+      });
 
-      // if (!posts) {
-      //   return {
-      //     ok: false,
-      //     error: '게시물이 존재하지 않습니다.',
-      //   };
-      // }
+      if (!posts) {
+        return {
+          ok: false,
+          error: '게시물이 존재하지 않습니다.',
+        };
+      }
 
       return {
         ok: true,
-        // posts,
+        posts,
       };
     } catch (e) {
       return {
