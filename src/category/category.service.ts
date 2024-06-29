@@ -131,7 +131,7 @@ export class CategoryService {
   async getCategoryCounts(): Promise<GetCategoriesCountOutput> {
     const categoryCounts = await this.category
       .createQueryBuilder('a')
-      .leftJoin('post', 'b', 'a.id = b.categoryId') // 'post' 테이블과의 조인
+      .innerJoin('post', 'b', 'a.id = b.categoryId') // 'post' 테이블과의 조인
       .select('a.categoryTitle', 'categoryTitle')
       .addSelect('COUNT(a.categoryTitle)', 'count')
       .addSelect('a.id', 'id')
