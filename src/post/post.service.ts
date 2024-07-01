@@ -14,7 +14,6 @@ import { Post } from 'src/post/entity/post.entity';
 import { UpdatePostHitsOutput } from './dto/update-post-hits.dto';
 import { GetPostByIdOutput } from './dto/get-post-by-id.dto';
 import { logger } from 'src/logger/winston';
-import { CategoryService } from 'src/category/category.service';
 
 @Injectable()
 export class PostService {
@@ -24,8 +23,6 @@ export class PostService {
 
     @InjectRepository(Category)
     private readonly category: Repository<Category>,
-
-    private readonly categoryService: CategoryService,
   ) {}
 
   async createPost(
@@ -156,10 +153,10 @@ export class PostService {
 
   async getPostList(): Promise<GetPostListOutput> {
     try {
-      const postList = await this.post.find();
+      const posts = await this.post.find();
       return {
         ok: true,
-        posts: postList,
+        posts,
       };
     } catch (e) {
       return {
