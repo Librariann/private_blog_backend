@@ -140,7 +140,7 @@ export class CategoryService {
 
     return {
       ok: true,
-      categoryCounts: categoryCounts,
+      categoryCounts,
     };
   }
 }
