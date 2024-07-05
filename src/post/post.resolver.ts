@@ -45,6 +45,7 @@ export class PostResolver {
   }
 
   @Query(() => GetPostListOutput)
+  @Public()
   getPostList(): Promise<GetPostListOutput> {
     return this.postService.getPostList();
   }
