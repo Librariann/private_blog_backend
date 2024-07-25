@@ -1,4 +1,4 @@
-import { Query, Mutation, Resolver, Args, Int } from '@nestjs/graphql';
+import { Query, Mutation, Resolver, Args } from '@nestjs/graphql';
 import { Hashtag } from './entity/hashtag.entity';
 import { GetHashTagOutput } from './dto/get-hashtag-list.dto';
 import { HashtagService } from './hashtag.service';
