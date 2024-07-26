@@ -8,6 +8,7 @@ import {
 import { UserProfileOutput } from './dto/user-profile.dto';
 import { LoginInput, LoginOutput } from './dto/login.dto';
 import { JwtService } from 'src/jwt/jwt.service';
+import { logger } from 'src/logger/winston';
 
 export class UserService {
   constructor(
@@ -17,7 +18,6 @@ export class UserService {
     private readonly jwtService: JwtService,
   ) {}
 
-  //TODO: logger 도입.. winston 사용 할 것
   async createAccount({
     email,
     password,
@@ -50,6 +50,7 @@ export class UserService {
         select: ['id', 'password'],
       });
       if (!user) {
+        logger.info('유저 없음');
         return { ok: false, error: '유저를 찾지못했습니다' };
       }
 
@@ -57,14 +58,17 @@ export class UserService {
       //만약 정보가 변경됐다면 백엔드에서 발급한 토큰 값이랑 다르기때문에 토큰의 변경 진위여부를 파악할수있다
       const passwordCorrect = await user.checkPassword(password);
       if (!passwordCorrect) {
+        logger.info('비밀번호 틀림');
         return { ok: false, error: '비밀번호가 틀립니다.' };
       }
       //sign에 user.id만 넘겨주는것은 이 프로젝트에서만 사용 할것이기때문에
       //만약 다른 프로젝트에서 더 크게 사용한다면 object형태로 넘겨주면된다
       const token = this.jwtService.sign(user.id);
+      logger.info('로그인 성공');
       return { ok: true, error: '로그인 성공했습니다', token };
     } catch (e) {
       console.log(e);
+      logger.info('로그인 불가', e);
       return {
         ok: false,
         error: '로그인 할 수 없습니다. 관리자에게 문의해주세요',
@@ -74,10 +78,11 @@ export class UserService {
 
   async findById(id: number): Promise<UserProfileOutput> {
     try {
-      const userInfo = await this.user.findOneByOrFail({
-        id,
+      const userInfo = await this.user.findOne({
+        where: { id },
+        relations: ['posts', 'comments'],
       });
-
+      console.log(userInfo);
       return {
         ok: true,
         user: userInfo,

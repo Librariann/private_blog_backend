@@ -9,7 +9,7 @@ import { Post } from 'src/post/entity/post.entity';
 @ObjectType()
 @Entity()
 export class Comment extends CoreEntity {
-  @Field(() => User)
+  // @Field(() => User)
   @ManyToOne(() => User, (user) => user.comments, {
     onDelete: 'SET NULL',
     eager: true,

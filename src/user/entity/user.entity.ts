@@ -30,7 +30,7 @@ export class User extends CoreEntity {
 
   @Field(() => [Post])
   @OneToMany(() => Post, (post) => post.user)
-  Posts: Post[];
+  posts: Post[];
 
   @Field(() => [Comment])
   @OneToMany(() => Comment, (comment) => comment.user)

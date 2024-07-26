@@ -29,8 +29,8 @@ export class Post extends CoreEntity {
   @ManyToOne(() => Category, (Category) => Category.post)
   category: Category;
 
-  @Field(() => [User])
-  @ManyToOne(() => User, (user) => user.Posts)
+  // @Field(() => [User])
+  @ManyToOne(() => User, (user) => user.posts)
   user: User;
 
   @Field(() => [Comment])
