@@ -78,7 +78,7 @@ export class UserService {
 
   async findById(id: number): Promise<UserProfileOutput> {
     try {
-      const userInfo = await this.user.findOne({
+      const userInfo = await this.user.findOneOrFail({
         where: { id },
         relations: ['posts', 'comments'],
       });
