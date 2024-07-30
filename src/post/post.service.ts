@@ -163,7 +163,7 @@ export class PostService {
 
   //post find one
   async getPostFindOne(postId: number): Promise<Post> {
-    const post = await this.post.findOneOrFail({
+    const post = await this.post.findOne({
       where: {
         id: postId,
       },
@@ -174,11 +174,10 @@ export class PostService {
 
   //유저 비교
   comparePostUser(user: User, post: Post): boolean {
-    let allowed = true;
     if (user.id !== post.user.id) {
-      allowed = false;
+      return false;
     }
 
-    return allowed;
+    return true;
   }
 }
