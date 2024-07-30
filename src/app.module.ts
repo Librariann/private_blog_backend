@@ -22,10 +22,11 @@ const TOKEN_KEY = 'x-jwt';
     ConfigModule.forRoot({
       cache: true,
       isGlobal: true,
-      envFilePath: process.env.NODE_ENV === 'dev' ? '.env.dev' : '.env.prod',
+      envFilePath:
+        process.env.NODE_ENV === 'development' ? '.env.dev' : '.env.prod',
       ignoreEnvFile: process.env.NODE_ENV === 'production',
       validationSchema: Joi.object({
-        NODE_ENV: Joi.string().valid('dev', 'production').required(),
+        NODE_ENV: Joi.string().valid('development', 'production').required(),
         DB_HOST: Joi.string().required(),
         DB_PORT: Joi.number().required(),
         DB_USERNAME: Joi.string().required(),
@@ -51,7 +52,7 @@ const TOKEN_KEY = 'x-jwt';
       password: process.env.DB_PASSWORD,
       database: process.env.DB_NAME,
       entities: [User, Post, Comment, Category],
-      synchronize: process.env.NODE_ENV === 'dev',
+      synchronize: process.env.NODE_ENV === 'development',
     }),
     JwtModule.forRoot({
       privateKey: process.env.SECRET_KEY,
