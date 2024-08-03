@@ -9,6 +9,8 @@ import { User } from 'src/user/entity/user.entity';
 import { Category } from 'src/category/entity/category.entity';
 import { Post } from 'src/post/entity/post.entity';
 import { UpdatePostHitsOutput } from './dto/update-post-hits.dto';
+import { GetPostOneOutput } from './dto/get-post-one.dto';
+import { logger } from 'src/logger/winston';
 
 @Injectable()
 export class PostService {
@@ -58,7 +60,7 @@ export class PostService {
     try {
       const existPost = await this.getPostFindOne(id);
 
-      const compareUserBool = this.comparePostUser(user, existPost);
+      const compareUserBool = this.comparePostUser(user, existPost.post);
 
       if (!compareUserBool) {
         return {
@@ -134,7 +136,7 @@ export class PostService {
       await this.post.save([
         {
           id: postId,
-          hits: existPost.hits + 1,
+          hits: existPost.post.hits + 1,
         },
       ]);
 
@@ -162,14 +164,33 @@ export class PostService {
   }
 
   //post find one
-  async getPostFindOne(postId: number): Promise<Post> {
-    const post = await this.post.findOne({
-      where: {
-        id: postId,
-      },
-    });
+  async getPostFindOne(postId: number): Promise<GetPostOneOutput> {
+    try {
+      const post = await this.post.findOne({
+        where: {
+          id: postId,
+        },
+        relations: ['category', 'comments'],
+      });
 
-    return post;
+      if (!post) {
+        return {
+          ok: false,
+          error: '게시물이 존재하지 않습니다.',
+        };
+      }
+
+      return {
+        ok: true,
+        post,
+      };
+    } catch (e) {
+      logger.error(e);
+      return {
+        ok: false,
+        error: `관리자에게 문의해주세요 ${e}`,
+      };
+    }
   }
 
   //유저 비교

@@ -26,7 +26,7 @@ export class Post extends CoreEntity {
   @IsInt()
   hits: number;
 
-  @Field(() => [Category])
+  @Field(() => Category)
   @ManyToOne(() => Category, (Category) => Category.post)
   category: Category;
 
