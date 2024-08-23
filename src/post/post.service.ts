@@ -175,7 +175,7 @@ export class PostService {
         where: {
           id: postId,
         },
-        relations: ['category', 'comments'],
+        relations: ['category', 'comments', 'hashtags'],
       });
 
       if (!post) {
@@ -208,7 +208,7 @@ export class PostService {
             id: categoryId,
           },
         },
-        relations: ['category', 'comments'],
+        relations: ['category', 'comments', 'hashtags'],
       });
 
       if (!posts) {

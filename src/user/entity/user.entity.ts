@@ -1,5 +1,5 @@
 import { CoreEntity } from 'src/common/entity/core.entity';
-import * as bcrypt from 'bcrypt';
+import * as bcrypt from 'bcryptjs';
 import { BeforeInsert, BeforeUpdate, Column, Entity, OneToMany } from 'typeorm';
 import { InputType, ObjectType, Field } from '@nestjs/graphql';
 import { IsString, IsEmail, IsNotEmpty } from 'class-validator';
