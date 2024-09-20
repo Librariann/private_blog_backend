@@ -2,10 +2,7 @@ import { Injectable } from '@nestjs/common';
 import { Repository } from 'typeorm';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Category } from './entity/category.entity';
-import {
-  CreateCategoryInput,
-  CreateCategoryOutput,
-} from './dto/create-category.dto';
+import { CreateCategoryOutput } from './dto/create-category.dto';
 import { DeleteCategoryOutput } from './dto/delete-category.dto';
 import { EditCategoryInput, EditCategoryOutput } from './dto/edit-category.dto';
 import {
@@ -20,9 +17,7 @@ export class CategoryService {
     private readonly category: Repository<Category>,
   ) {}
 
-  async createCategory({
-    categoryTitle,
-  }: CreateCategoryInput): Promise<CreateCategoryOutput> {
+  async createCategory(categoryTitle: string): Promise<CreateCategoryOutput> {
     try {
       const newCategory = this.category.create({
         categoryTitle,
