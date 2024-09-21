@@ -1,11 +1,13 @@
-import { Field, InputType, Int, ObjectType, PickType } from '@nestjs/graphql';
+import { Field, InputType, Int, ObjectType } from '@nestjs/graphql';
 import { Output } from 'src/common/dto/output.dto';
-import { Hashtag } from '../entity/hashtag.entity';
 
 @InputType()
-export class CreateHashTagInput extends PickType(Hashtag, ['hashtag']) {
+export class CreateHashTagInput {
   @Field(() => Int)
   postId?: number;
+
+  @Field(() => [String])
+  hashtags?: string[];
 }
 
 @ObjectType()
