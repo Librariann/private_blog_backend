@@ -40,7 +40,7 @@ export class HashtagService {
   }
 
   async createHashTag({
-    hashtag,
+    hashtags,
     postId,
   }: CreateHashTagInput): Promise<CreateHashTagOutput> {
     try {
@@ -57,16 +57,9 @@ export class HashtagService {
         };
       }
 
-      const hashtags = hashtag.split(','); //해시태그 분할
-
-      for (hashtag of hashtags) {
-        await this.hashtag.save(
-          this.hashtag.create({
-            hashtag,
-            post,
-          }),
-        );
-      }
+      hashtags.map((hashtag) => {
+        this.hashtag.save(this.hashtag.create({ hashtag, post }));
+      });
 
       return {
         ok: true,
