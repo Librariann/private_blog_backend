@@ -22,8 +22,9 @@ export class PostResolver {
   createPost(
     @AuthUser() authUser: User,
     @Args('input') createPostInput: CreatePostInput,
+    @Args('hashtags', { type: () => [String] }) hashtags: string[],
   ): Promise<CreatePostOutput> {
-    return this.postService.createPost(authUser, createPostInput);
+    return this.postService.createPost(authUser, createPostInput, hashtags);
   }
 
   @Mutation(() => EditPostOutput)
