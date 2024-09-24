@@ -14,6 +14,7 @@ import { Post } from 'src/post/entity/post.entity';
 import { UpdatePostHitsOutput } from './dto/update-post-hits.dto';
 import { GetPostByIdOutput } from './dto/get-post-by-id.dto';
 import { logger } from 'src/logger/winston';
+import { HashtagService } from 'src/hashtag/hashtag.service';
 
 @Injectable()
 export class PostService {
@@ -23,11 +24,14 @@ export class PostService {
 
     @InjectRepository(Category)
     private readonly category: Repository<Category>,
+
+    private readonly hashtagService: HashtagService,
   ) {}
 
   async createPost(
     user: User,
     createPostInput: CreatePostInput,
+    hashtags: string[],
   ): Promise<CreatePostOutput> {
     try {
       const getCategory = await this.category.findOneByOrFail({
@@ -43,6 +47,10 @@ export class PostService {
       newPost.user = user;
       newPost.category = getCategory;
       await this.post.save(newPost);
+      await this.hashtagService.createHashTag({
+        hashtags,
+        postId: newPost.id,
+      });
       return {
         ok: true,
         postId: newPost.id,
