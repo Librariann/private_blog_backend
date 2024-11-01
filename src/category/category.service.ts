@@ -2,7 +2,10 @@ import { Injectable } from '@nestjs/common';
 import { Repository } from 'typeorm';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Category } from './entity/category.entity';
-import { CreateCategoryOutput } from './dto/create-category.dto';
+import {
+  CreateCategoryInput,
+  CreateCategoryOutput,
+} from './dto/create-category.dto';
 import { DeleteCategoryOutput } from './dto/delete-category.dto';
 import { EditCategoryInput, EditCategoryOutput } from './dto/edit-category.dto';
 import {
@@ -20,26 +23,35 @@ export class CategoryService {
   ) {}
 
   async createCategory(
-    categoryTitle: string,
-    categoryParentId?: number,
+    createCategory: CreateCategoryInput,
   ): Promise<CreateCategoryOutput> {
     try {
       // 1. 카테고리 이름 중복 체크
       const existCategoryTitle = await this.category.findOne({
-        where: { categoryTitle },
+        where: { categoryTitle: createCategory.categoryTitle },
       });
 
       if (existCategoryTitle) {
-        return {
-          ok: false,
-          error: '같은 이름의 카테고리가 존재합니다.',
-        };
+        // 같은 부모 ID를 가진 경우 (메인 카테고리: 둘 다 null, 서브 카테고리: 같은 부모 ID)
+        if (
+          existCategoryTitle.parentCategoryId ===
+          createCategory.parentCategoryId
+        ) {
+          const errorMsg = createCategory.parentCategoryId
+            ? '같은 이름의 서브 카테고리가 이미 존재합니다.'
+            : '같은 이름의 메인 카테고리가 이미 존재합니다.';
+
+          return {
+            ok: false,
+            error: errorMsg,
+          };
+        }
       }
 
       // 2. 부모 카테고리 존재 여부 체크 (부모 ID가 있는 경우만)
-      if (categoryParentId) {
+      if (createCategory?.parentCategoryId) {
         const existParentCategory = await this.category.findOne({
-          where: { id: categoryParentId },
+          where: { id: createCategory.parentCategoryId },
         });
 
         if (!existParentCategory) {
@@ -53,13 +65,11 @@ export class CategoryService {
       // 3. 같은 부모 하위의 카테고리 개수 조회 (sortOrder 계산용)
       const categoryParentCheck = await this.category.find({
         where: {
-          parentCategoryId: categoryParentId || null,
+          parentCategoryId: createCategory?.parentCategoryId || null,
         },
       });
 
-      const newCategory = this.category.create({
-        categoryTitle,
-      });
+      const newCategory = this.category.create(createCategory);
 
       if (categoryParentCheck.length > 0) {
         newCategory.sortOrder = categoryParentCheck.length + 1;
@@ -67,8 +77,8 @@ export class CategoryService {
         newCategory.sortOrder = 1;
       }
 
-      if (categoryParentId) {
-        newCategory.parentCategoryId = categoryParentId;
+      if (createCategory?.parentCategoryId) {
+        newCategory.parentCategoryId = createCategory.parentCategoryId;
       }
 
       await this.category.save(newCategory);
@@ -86,12 +96,11 @@ export class CategoryService {
     }
   }
 
-  async editCategory({
-    id,
-    categoryTitle,
-  }: EditCategoryInput): Promise<EditCategoryOutput> {
+  async editCategory(
+    editCategory: EditCategoryInput,
+  ): Promise<EditCategoryOutput> {
     try {
-      const category = await this.findOneCategoryById(id);
+      const category = await this.findOneCategoryById(editCategory.id);
 
       if (!category) {
         return {
@@ -102,8 +111,10 @@ export class CategoryService {
 
       await this.category.save([
         {
-          id,
-          categoryTitle,
+          id: editCategory.id,
+        },
+        {
+          ...editCategory,
         },
       ]);
 
