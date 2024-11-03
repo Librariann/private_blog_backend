@@ -12,6 +12,12 @@ export class CreateCategoryInput extends PickType(Category, ['categoryTitle']) {
 
   @Field(() => Int, { nullable: true })
   sortOrder?: number;
+
+  @Field(() => String, { nullable: true })
+  icon?: string;
+
+  @Field(() => String, { nullable: true })
+  iconColor?: string;
 }
 
 @ObjectType()
