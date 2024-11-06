@@ -15,6 +15,12 @@ export class EditCategoryInput extends PickType(Category, [
 
   @Field(() => Int, { nullable: true })
   sortOrder?: number;
+
+  @Field(() => String, { nullable: true })
+  icon?: string;
+
+  @Field(() => String, { nullable: true })
+  iconColor?: string;
 }
 
 @ObjectType()
