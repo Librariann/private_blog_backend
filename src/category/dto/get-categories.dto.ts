@@ -3,16 +3,7 @@ import { Output } from 'src/common/dto/output.dto';
 import { Category } from '../entity/category.entity';
 
 @ObjectType()
-export class CategoryCount {
-  @Field(() => Int)
-  id: number;
-
-  @Field(() => String)
-  categoryTitle: string;
-
-  @Field(() => Int, { nullable: true })
-  parentCategoryId?: number;
-
+export class CategoryCount extends Category {
   @Field(() => [CategoryCount], { nullable: true })
   children?: CategoryCount[];
 
