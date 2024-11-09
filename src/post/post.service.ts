@@ -74,12 +74,11 @@ export class PostService {
 
   async editPost(
     user: User,
-    { id, title, contents, thumbnailUrl }: EditPostInput,
+    updatePost: EditPostInput,
     hashtags: string[] | null,
   ): Promise<EditPostOutput> {
     try {
-      const existPost = await this.getPostFindOne(id);
-
+      const existPost = await this.getPostFindOne(updatePost.id);
       const compareUserBool = this.comparePostUser(user, existPost.post);
 
       if (!compareUserBool) {
@@ -95,27 +94,30 @@ export class PostService {
           error: '해당 글이 존재하지 않습니다.',
         };
       }
-      const updatePost = {
-        title,
-        contents,
-        thumbnailUrl,
-        readTime: 1,
-      };
+
+      const getCategory = await this.category.findOneByOrFail({
+        id: updatePost.categoryId,
+      });
+
+      if (!getCategory) {
+        return {
+          ok: false,
+          error: '카테고리가 없습니다 다시한번 확인해주세요.',
+        };
+      }
+      const createEditPost = this.post.create(updatePost);
+      createEditPost.category = getCategory;
 
       if (updatePost.contents) {
-        updatePost.readTime = this.calculateReadTime(updatePost.contents);
+        createEditPost.readTime = this.calculateReadTime(updatePost.contents);
       }
 
-      await this.post.update(
-        {
-          id,
-        },
-        updatePost,
-      );
+      await this.post.update({ id: updatePost.id }, createEditPost);
       await this.hashtagService.updateHashTag({
         hashtags,
-        postId: id,
+        postId: updatePost.id,
       });
+
       return {
         ok: true,
       };
