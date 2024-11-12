@@ -28,6 +28,9 @@ export class Category extends CoreEntity {
   @IsString()
   parentCategoryTitle?: string;
 
+  @Field(() => [Category], { nullable: true })
+  subCategories?: Category[];
+
   @Column({ nullable: true })
   @Field(() => Number, { nullable: true })
   @IsNumber()
