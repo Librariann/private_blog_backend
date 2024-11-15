@@ -152,12 +152,34 @@ export class CategoryService {
 
   async getCategories(): Promise<GetCategoriesOutput> {
     try {
+      const result = [];
+      const map = new Map();
       const getCategories = await this.category.find({
         order: { sortOrder: 'ASC' },
       });
+
+      getCategories?.forEach((category) => {
+        map.set(category.id, {
+          ...category,
+          subCategories: [],
+        });
+      });
+
+      getCategories?.forEach((category) => {
+        const node = map.get(category.id);
+        if (category.parentCategoryId) {
+          const parent = map.get(category.parentCategoryId);
+          if (parent) {
+            parent.subCategories.push(node);
+          }
+        } else {
+          result.push(node);
+        }
+      });
+
       return {
         ok: true,
-        categories: getCategories,
+        categories: result,
       };
     } catch (e) {
       return {
