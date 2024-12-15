@@ -26,4 +26,14 @@ export class Comment extends CoreEntity {
   @Field(() => String)
   @IsString()
   comment: string;
+
+  @Column({ nullable: false })
+  @Field(() => String)
+  @IsString()
+  commentId: string;
+
+  @Column({ nullable: false })
+  @Field(() => String)
+  @IsString()
+  commentPassword: string;
 }
