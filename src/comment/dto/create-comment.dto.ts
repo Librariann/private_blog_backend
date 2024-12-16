@@ -3,7 +3,11 @@ import { Comment } from '../entity/comment.entity';
 import { Output } from 'src/common/dto/output.dto';
 
 @InputType()
-export class CreateCommentInput extends PickType(Comment, ['comment']) {
+export class CreateCommentInput extends PickType(Comment, [
+  'comment',
+  'commentId',
+  'commentPassword',
+]) {
   @Field(() => Int)
   postId: number;
 }
