@@ -10,6 +10,8 @@ import { User } from 'src/user/entity/user.entity';
 import { Post } from 'src/post/entity/post.entity';
 import { DeleteCommentOutput } from './dto/delete-comment.dto';
 import { EditCommentInput, EditCommentOutput } from './dto/edit-comment.dto';
+import { GetCommentOutput } from './dto/get-comment.dto';
+import { PostService } from 'src/post/post.service';
 
 @Injectable()
 export class CommentService {
@@ -19,10 +21,12 @@ export class CommentService {
 
     @InjectRepository(Post)
     private readonly post: Repository<Post>,
+
+    private readonly postService: PostService,
   ) {}
   async createComment(
-    commentUser: User,
-    { postId, comment }: CreateCommentInput,
+    // commentUser: User,
+    { postId, comment, commentId, commentPassword }: CreateCommentInput,
   ): Promise<CreateCommentOutput> {
     try {
       const existPost = await this.post.findOneOrFail({
@@ -39,7 +43,9 @@ export class CommentService {
       const newComment = this.comment.create({
         post: existPost,
         comment: comment,
-        user: commentUser,
+        commentId: commentId,
+        commentPassword: commentPassword,
+        // user: commentUser,
       });
       await this.comment.save(newComment);
       return {
@@ -126,6 +132,25 @@ export class CommentService {
       return {
         ok: false,
         error: '댓글을 삭제 할 수 없습니다.',
+      };
+    }
+  }
+
+  async getComments(postId: number): Promise<GetCommentOutput> {
+    try {
+      const {
+        post: { comments },
+      } = await this.postService.getPostFindOne(postId);
+
+      return {
+        ok: true,
+        comments: comments,
+      };
+    } catch (e) {
+      console.log(e);
+      return {
+        ok: false,
+        error: '댓글을 가져올 수 없습니다.',
       };
     }
   }
