@@ -37,3 +37,6 @@ lerna-debug.log*
 
 # environment files
 .env.*
+
+# claude
+CLAUDE.md
