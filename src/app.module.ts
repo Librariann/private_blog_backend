@@ -46,7 +46,7 @@ const TOKEN_KEY = 'x-jwt';
       },
     }),
     TypeOrmModule.forRoot({
-      type: 'mysql',
+      type: 'postgres',
       host: process.env.DB_HOST,
       port: +process.env.DB_PORT,
       username: process.env.DB_USERNAME,
@@ -55,9 +55,7 @@ const TOKEN_KEY = 'x-jwt';
       entities: [User, Post, Comment, Category, Hashtag],
       synchronize: process.env.NODE_ENV === 'dev',
     }),
-    JwtModule.forRoot({
-      privateKey: process.env.SECRET_KEY,
-    }),
+    JwtModule.forRoot({ privateKey: process.env.SECRET_KEY }),
     UserModule,
     PostModule,
     AuthModule,
