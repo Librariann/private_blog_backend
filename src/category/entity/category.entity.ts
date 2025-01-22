@@ -6,7 +6,7 @@ import { Post } from 'src/post/entity/post.entity';
 
 @InputType('CategoryInputType', { isAbstract: true })
 @ObjectType()
-@Entity()
+@Entity({ schema: 'private_blog' })
 export class Category extends CoreEntity {
   @Column({ nullable: false })
   @Field(() => String)
