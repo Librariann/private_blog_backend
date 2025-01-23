@@ -7,7 +7,7 @@ import { Post } from 'src/post/entity/post.entity';
 
 @InputType('CommentInputType', { isAbstract: true })
 @ObjectType()
-@Entity()
+@Entity({ schema: 'private_blog' })
 export class Comment extends CoreEntity {
   // @Field(() => User)
   @ManyToOne(() => User, (user) => user.comments, {
