@@ -6,7 +6,7 @@ import { Column, Entity, ManyToOne } from 'typeorm';
 
 @InputType('HashtagInputType', { isAbstract: true })
 @ObjectType()
-@Entity()
+@Entity({ schema: 'private_blog' })
 export class Hashtag extends CoreEntity {
   @Column({ nullable: false })
   @Field(() => String)
