@@ -9,7 +9,7 @@ import { Hashtag } from 'src/hashtag/entity/hashtag.entity';
 
 @InputType('PostInputType', { isAbstract: true })
 @ObjectType()
-@Entity()
+@Entity({ schema: 'private_blog' })
 export class Post extends CoreEntity {
   @Column({ nullable: false })
   @Field(() => String)
@@ -21,7 +21,7 @@ export class Post extends CoreEntity {
   @IsString()
   contents: string;
 
-  @Column({ nullable: false })
+  @Column({ nullable: false, default: 0 })
   @Field(() => Int)
   @IsInt()
   hits: number;
