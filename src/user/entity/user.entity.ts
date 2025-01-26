@@ -9,7 +9,7 @@ import { Post } from 'src/post/entity/post.entity';
 
 @InputType('UserInputType', { isAbstract: true })
 @ObjectType()
-@Entity()
+@Entity({ schema: 'private_blog' })
 export class User extends CoreEntity {
   @Column({ unique: true, nullable: false })
   @Field(() => String)
