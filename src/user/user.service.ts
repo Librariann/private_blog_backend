@@ -26,21 +26,13 @@ export class UserService {
     try {
       const checkExistsEmail = await this.user.findOne({ where: { email } });
       if (checkExistsEmail) {
-        return {
-          ok: false,
-          error: '이미 존재하는 계정입니다.',
-        };
+        return { ok: false, error: '이미 존재하는 계정입니다.' };
       }
       await this.user.save(this.user.create({ email, password }));
-      return {
-        ok: true,
-      };
+      return { ok: true };
     } catch (e) {
       console.log(e);
-      return {
-        ok: false,
-        error: '계정을 생성 할 수 없습니다.',
-      };
+      return { ok: false, error: '계정을 생성 할 수 없습니다.' };
     }
   }
 
@@ -59,17 +51,15 @@ export class UserService {
       //만약 정보가 변경됐다면 백엔드에서 발급한 토큰 값이랑 다르기때문에 토큰의 변경 진위여부를 파악할수있다
       const passwordCorrect = await user.checkPassword(password);
       if (!passwordCorrect) {
-        logger.info('비밀번호 틀림');
         return { ok: false, error: '비밀번호가 틀립니다.' };
       }
       //sign에 user.id만 넘겨주는것은 이 프로젝트에서만 사용 할것이기때문에
       //만약 다른 프로젝트에서 더 크게 사용한다면 object형태로 넘겨주면된다.
       const token = this.jwtService.sign(user.id);
-      logger.info('로그인 성공');
       return { ok: true, error: '로그인 성공했습니다', token };
     } catch (e) {
       console.log(e);
-      logger.info('로그인 불가', e);
+      logger.error('로그인 불가', e);
       return {
         ok: false,
         error: '로그인 할 수 없습니다. 관리자에게 문의해주세요',
@@ -83,10 +73,7 @@ export class UserService {
         where: { id },
         relations: ['posts', 'comments'],
       });
-      return {
-        ok: true,
-        user: userInfo,
-      };
+      return { ok: true, user: userInfo };
     } catch (e) {
       console.log(e);
       return {
@@ -103,25 +90,16 @@ export class UserService {
     try {
       const getUserInfo = await this.findById(id);
       if (!getUserInfo) {
-        return {
-          ok: false,
-          message: '유저가 없습니다.',
-        };
+        return { ok: false, message: '유저가 없습니다.' };
       }
 
       getUserInfo.user.password = password;
 
       await this.user.save(getUserInfo.user);
 
-      return {
-        ok: true,
-        message: '비밀번호가 변경 됐습니다.',
-      };
+      return { ok: true, message: '비밀번호가 변경 됐습니다.' };
     } catch (e) {
-      return {
-        ok: false,
-        message: `비밀번호 변경에 실패했습니다 - ${e}`,
-      };
+      return { ok: false, message: `비밀번호 변경에 실패했습니다 - ${e}` };
     }
   }
 }
