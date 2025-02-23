@@ -22,7 +22,7 @@ export class PostResolver {
   createPost(
     @AuthUser() authUser: User,
     @Args('input') createPostInput: CreatePostInput,
-    @Args('hashtags', { type: () => [String] }) hashtags: string[],
+    @Args('hashtags', { type: () => [String], nullable: true }) hashtags: string[] | null,
   ): Promise<CreatePostOutput> {
     return this.postService.createPost(authUser, createPostInput, hashtags);
   }
