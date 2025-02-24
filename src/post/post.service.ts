@@ -31,7 +31,7 @@ export class PostService {
   async createPost(
     user: User,
     createPostInput: CreatePostInput,
-    hashtags: string[],
+    hashtags: string[] | null,
   ): Promise<CreatePostOutput> {
     try {
       const getCategory = await this.category.findOneByOrFail({
@@ -47,10 +47,12 @@ export class PostService {
       newPost.user = user;
       newPost.category = getCategory;
       await this.post.save(newPost);
-      await this.hashtagService.createHashTag({
-        hashtags,
-        postId: newPost.id,
-      });
+      if (hashtags && hashtags.length > 0) {
+        await this.hashtagService.createHashTag({
+          hashtags,
+          postId: newPost.id,
+        });
+      }
       return {
         ok: true,
         postId: newPost.id,
