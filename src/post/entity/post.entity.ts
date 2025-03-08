@@ -44,4 +44,9 @@ export class Post extends CoreEntity {
   @Field(() => [Hashtag])
   @OneToMany(() => Hashtag, (hashtag) => hashtag.post)
   hashtags: Hashtag[];
+
+  @Column({ nullable: true })
+  @Field(() => String, { nullable: true })
+  @IsString()
+  thumbnailUrl: string;
 }
