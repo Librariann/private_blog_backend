@@ -33,7 +33,7 @@ export class Post extends CoreEntity {
   @RelationId((post: Post) => post.category)
   categoryId: number;
 
-  // @Field(() => [User])
+  @Field(() => User, { nullable: true })
   @ManyToOne(() => User, (user) => user.posts)
   user: User;
 
