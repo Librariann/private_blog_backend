@@ -185,7 +185,7 @@ export class PostService {
         where: {
           id: postId,
         },
-        relations: ['category', 'comments', 'hashtags'],
+        relations: ['category', 'comments', 'hashtags', 'user'],
       });
 
       if (!post) {
