@@ -165,6 +165,9 @@ export class PostService {
     try {
       const posts = await this.post.find({
         relations: ['category', 'hashtags', 'comments'],
+        order: {
+          createdAt: 'DESC',
+        },
       });
       return {
         ok: true,
@@ -219,6 +222,9 @@ export class PostService {
           },
         },
         relations: ['category', 'comments', 'hashtags'],
+        order: {
+          createdAt: 'DESC',
+        },
       });
 
       if (!posts) {
@@ -236,6 +242,52 @@ export class PostService {
       return {
         ok: false,
         error: `관리자에게 문의해주세요 ${e}`,
+      };
+    }
+  }
+
+  // Query Builder를 사용한 정렬 방식 (더 복잡한 쿼리에 사용)
+  async getPostListWithQueryBuilder(): Promise<GetPostListOutput> {
+    try {
+      const posts = await this.post
+        .createQueryBuilder('post')
+        .leftJoinAndSelect('post.category', 'category')
+        .leftJoinAndSelect('post.hashtags', 'hashtags')
+        .leftJoinAndSelect('post.comments', 'comments')
+        .orderBy('post.createdAt', 'DESC')
+        .getMany();
+
+      return {
+        ok: true,
+        posts,
+      };
+    } catch (e) {
+      return {
+        ok: false,
+        error: '리스트를 가져올 수 없습니다.',
+      };
+    }
+  }
+
+  // 다중 정렬 기준 예시
+  async getPostListWithMultipleOrdering(): Promise<GetPostListOutput> {
+    try {
+      const posts = await this.post.find({
+        relations: ['category', 'hashtags', 'comments'],
+        order: {
+          createdAt: 'DESC',
+          hits: 'DESC', // 조회수도 내림차순으로 정렬
+          title: 'ASC', // 제목은 오름차순
+        },
+      });
+      return {
+        ok: true,
+        posts,
+      };
+    } catch (e) {
+      return {
+        ok: false,
+        error: '리스트를 가져올 수 없습니다.',
       };
     }
   }
