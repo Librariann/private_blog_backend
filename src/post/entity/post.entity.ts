@@ -48,5 +48,5 @@ export class Post extends CoreEntity {
   @Column({ nullable: true })
   @Field(() => String, { nullable: true })
   @IsString()
-  thumbnailUrl: string;
+  thumbnailUrl?: string;
 }
