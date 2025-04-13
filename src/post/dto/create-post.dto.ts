@@ -6,6 +6,9 @@ import { Output } from 'src/common/dto/output.dto';
 export class CreatePostInput extends PickType(Post, ['title', 'contents']) {
   @Field(() => Int)
   categoryId?: number;
+
+  @Field(() => String)
+  thumbnailUrl?: string;
 }
 
 @ObjectType()
