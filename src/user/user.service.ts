@@ -63,7 +63,7 @@ export class UserService {
         return { ok: false, error: '비밀번호가 틀립니다.' };
       }
       //sign에 user.id만 넘겨주는것은 이 프로젝트에서만 사용 할것이기때문에
-      //만약 다른 프로젝트에서 더 크게 사용한다면 object형태로 넘겨주면된다.
+      //만약 다른 프로젝트에서 더 크게 사용한다면 object형태로 넘겨주면된다
       const token = this.jwtService.sign(user.id);
       logger.info('로그인 성공');
       return { ok: true, error: '로그인 성공했습니다', token };
