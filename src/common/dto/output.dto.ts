@@ -8,6 +8,6 @@ export class Output {
   @Field(() => String, { nullable: true })
   error?: string;
 
-  @Field(() => String)
+  @Field(() => String, { nullable: true })
   message?: string;
 }
