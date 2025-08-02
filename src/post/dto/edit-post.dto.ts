@@ -22,3 +22,6 @@ export class EditPostInput extends PickType(Post, ['id', 'title', 'contents']) {
 
 @ObjectType()
 export class EditPostOutput extends Output {}
+
+@ObjectType()
+export class UpdateFeaturedPostOutput extends Output {}
