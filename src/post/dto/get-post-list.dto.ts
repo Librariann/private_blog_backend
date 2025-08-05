@@ -6,6 +6,18 @@ import { Post } from '../entity/post.entity';
 export class GetPostListOutput extends Output {
   @Field(() => [Post], { nullable: true })
   posts?: Post[];
+
+  @Field(() => Post, { nullable: false })
+  featuredPost?: Post;
+}
+
+@ObjectType()
+export class GetPostListWithLimitOutput extends Output {
+  @Field(() => [Post], { nullable: true })
+  posts?: Post[];
+
+  @Field(() => Post, { nullable: false })
+  featuredPost?: Post;
 }
 
 @ObjectType()
