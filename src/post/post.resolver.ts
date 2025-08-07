@@ -5,8 +5,13 @@ import { CreatePostInput, CreatePostOutput } from './dto/create-post.dto';
 import {
   getPostListByCategoryIdOutput,
   GetPostListOutput,
+  GetPostListWithLimitOutput,
 } from './dto/get-post-list.dto';
-import { EditPostInput, EditPostOutput } from './dto/edit-post.dto';
+import {
+  EditPostInput,
+  EditPostOutput,
+  UpdateFeaturedPostOutput,
+} from './dto/edit-post.dto';
 import { DeletePostOutput } from './dto/delete-post.dto';
 import { User } from 'src/user/entity/user.entity';
 import { AuthUser } from 'src/auth/auth-user.decorator';
@@ -51,6 +56,13 @@ export class PostResolver {
     return this.postService.togglePostStatus(postId);
   }
 
+  @Mutation(() => UpdateFeaturedPostOutput)
+  updateFeaturedPost(
+    @Args('postId', { type: () => Int }) postId: number,
+  ): Promise<UpdateFeaturedPostOutput> {
+    return this.postService.updateFeaturedPost(postId);
+  }
+
   @Mutation(() => UpdatePostHitsOutput)
   @Public()
   updatePostHits(@Args('postId', { type: () => Int }) postId: number) {
@@ -61,6 +73,12 @@ export class PostResolver {
   @Public()
   getPostList(): Promise<GetPostListOutput> {
     return this.postService.getPostList();
+  }
+
+  @Query(() => GetPostListWithLimitOutput)
+  @Public()
+  getPostListWithLimit(): Promise<GetPostListWithLimitOutput> {
+    return this.postService.getPostListWithLimit();
   }
 
   @Query(() => GetPostByIdOutput, { nullable: true })
