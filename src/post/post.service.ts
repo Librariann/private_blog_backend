@@ -5,12 +5,17 @@ import { CreatePostInput, CreatePostOutput } from './dto/create-post.dto';
 import {
   getPostListByCategoryIdOutput,
   GetPostListOutput,
+  GetPostListWithLimitOutput,
 } from './dto/get-post-list.dto';
-import { EditPostInput, EditPostOutput } from './dto/edit-post.dto';
+import {
+  EditPostInput,
+  EditPostOutput,
+  UpdateFeaturedPostOutput,
+} from './dto/edit-post.dto';
 import { DeletePostOutput } from './dto/delete-post.dto';
 import { User } from 'src/user/entity/user.entity';
 import { Category } from 'src/category/entity/category.entity';
-import { Post, PostStatus } from 'src/post/entity/post.entity';
+import { FeatureStatus, Post, PostStatus } from 'src/post/entity/post.entity';
 import { UpdatePostHitsOutput } from './dto/update-post-hits.dto';
 import { GetPostByIdOutput } from './dto/get-post-by-id.dto';
 import { logger } from 'src/logger/winston';
@@ -59,7 +64,7 @@ export class PostService {
         postId: newPost.id,
       };
     } catch (e) {
-      console.log(e);
+      logger.error(e);
       return {
         ok: false,
         error: '게시글을 작성 할 수 없습니다',
@@ -112,7 +117,7 @@ export class PostService {
         ok: true,
       };
     } catch (e) {
-      console.log(e);
+      logger.error(e);
       return {
         ok: false,
         error: '게시글을 수정 할 수 없습니다.',
@@ -139,7 +144,7 @@ export class PostService {
         ok: true,
       };
     } catch (e) {
-      console.log(e);
+      logger.error(e);
       return {
         ok: false,
         error: '게시글을 삭제 할 수 없습니다.',
@@ -173,10 +178,46 @@ export class PostService {
         ok: true,
       };
     } catch (e) {
-      console.log(e);
+      logger.error(e);
       return {
         ok: false,
         error: '게시글을 삭제 할 수 없습니다.',
+      };
+    }
+  }
+
+  async updateFeaturedPost(postId: number): Promise<UpdateFeaturedPostOutput> {
+    try {
+      const prevFeaturedPost = await this.post.findOneByOrFail({
+        featureYn: FeatureStatus.Y,
+      });
+
+      const getPost = await this.post.findOneByOrFail({
+        id: postId,
+      });
+
+      const saveItems = [
+        {
+          id: prevFeaturedPost.id,
+          featureYn: FeatureStatus.N,
+        },
+        {
+          id: getPost.id,
+          featureYn: FeatureStatus.Y,
+        },
+      ];
+
+      this.post.save(saveItems);
+
+      return {
+        ok: true,
+        message: 'feature 업데이트가 완료됐습니다.',
+      };
+    } catch (e) {
+      logger.error(e);
+      return {
+        ok: false,
+        error: 'feature 업데이트를 할 수 없습니다.',
       };
     }
   }
@@ -201,7 +242,7 @@ export class PostService {
         ok: true,
       };
     } catch (e) {
-      console.log(e);
+      logger.error(e);
     }
   }
 
@@ -221,10 +262,50 @@ export class PostService {
           postStatus: PostStatus.PUBLISHED,
         },
       });
+      const featuredPost = await this.post.findOneByOrFail({
+        featureYn: FeatureStatus.Y,
+      });
 
       return {
         ok: true,
         posts,
+        featuredPost,
+      };
+    } catch (e) {
+      return {
+        ok: false,
+        error: '리스트를 가져올 수 없습니다.',
+      };
+    }
+  }
+
+  async getPostListWithLimit(): Promise<GetPostListWithLimitOutput> {
+    try {
+      const limit = 5;
+      const posts = await this.post.find({
+        relations: [
+          'category',
+          'hashtags',
+          'comments',
+          'category.parentCategory',
+        ],
+        take: limit,
+        order: {
+          createdAt: 'DESC',
+        },
+        where: {
+          postStatus: PostStatus.PUBLISHED,
+        },
+      });
+
+      const featuredPost = await this.post.findOneByOrFail({
+        featureYn: FeatureStatus.Y,
+      });
+
+      return {
+        ok: true,
+        posts,
+        featuredPost,
       };
     } catch (e) {
       return {
