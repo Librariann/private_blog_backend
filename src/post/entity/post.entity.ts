@@ -32,6 +32,11 @@ export class Post extends CoreEntity {
   @IsString()
   contents: string;
 
+  @Column({ nullable: true })
+  @Field(() => String, { nullable: true })
+  @IsString()
+  excerpt?: string;
+
   @Column({ nullable: false, default: 0 })
   @Field(() => Int)
   @IsInt()
