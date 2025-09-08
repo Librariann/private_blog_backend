@@ -10,6 +10,12 @@ export class CategoryCount {
   @Field(() => String)
   categoryTitle: string;
 
+  @Field(() => Int, { nullable: true })
+  parentCategoryId?: number;
+
+  @Field(() => [CategoryCount], { nullable: true })
+  children?: CategoryCount[];
+
   @Field(() => Int)
   count: number;
 }
