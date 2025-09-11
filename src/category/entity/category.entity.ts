@@ -24,6 +24,11 @@ export class Category extends CoreEntity {
   parentCategoryId?: number;
 
   @Column({ nullable: true })
+  @Field(() => String, { nullable: true })
+  @IsString()
+  parentCategoryTitle?: string;
+
+  @Column({ nullable: true })
   @Field(() => Number, { nullable: true })
   @IsNumber()
   sortOrder?: number;
@@ -32,5 +37,5 @@ export class Category extends CoreEntity {
     onDelete: 'SET NULL',
     eager: true,
   })
-  post: Post;
+  post: Post[];
 }
