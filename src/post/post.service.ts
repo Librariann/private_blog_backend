@@ -69,6 +69,7 @@ export class PostService {
   async editPost(
     user: User,
     { id, title, contents, thumbnailUrl }: EditPostInput,
+    hashtags: string[] | null,
   ): Promise<EditPostOutput> {
     try {
       const existPost = await this.getPostFindOne(id);
@@ -97,6 +98,12 @@ export class PostService {
           thumbnailUrl,
         },
       ]);
+      if (hashtags && hashtags.length > 0) {
+        await this.hashtagService.updateHashTag({
+          hashtags,
+          postId: id,
+        });
+      }
       return {
         ok: true,
       };

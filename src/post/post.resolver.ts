@@ -32,8 +32,10 @@ export class PostResolver {
   editPost(
     @AuthUser() postUser: User,
     @Args('input') editPostInput: EditPostInput,
+    @Args('hashtags', { type: () => [String], nullable: true })
+    hashtags: string[] | null,
   ): Promise<EditPostOutput> {
-    return this.postService.editPost(postUser, editPostInput);
+    return this.postService.editPost(postUser, editPostInput, hashtags);
   }
 
   @Mutation(() => DeletePostOutput)

@@ -73,7 +73,7 @@ export class HashtagService {
   }
 
   async updateHashTag({
-    hashtag,
+    hashtags,
     postId,
   }: UpdateHashTagInput): Promise<UpdateHashTagOutput> {
     try {
@@ -85,14 +85,13 @@ export class HashtagService {
 
       // 현재 해시태그를 배열로 변환
       const existingHashtagNames = existHashtags.map((tag) => tag.hashtag);
-      const newHashtags = hashtag.split(',');
 
       // 추가할 해시태그와 삭제할 해시태그 결정
-      const hashtagsToAdd = newHashtags.filter(
+      const hashtagsToAdd = hashtags.filter(
         (tag) => !existingHashtagNames.includes(tag),
       );
       const hashtagsToRemove = existingHashtagNames.filter(
-        (tag) => !newHashtags.includes(tag),
+        (tag) => !hashtags.includes(tag),
       );
 
       // 새로운 해시태그 추가
