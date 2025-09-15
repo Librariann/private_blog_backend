@@ -98,12 +98,10 @@ export class PostService {
           thumbnailUrl,
         },
       ]);
-      if (hashtags && hashtags.length > 0) {
-        await this.hashtagService.updateHashTag({
-          hashtags,
-          postId: id,
-        });
-      }
+      await this.hashtagService.updateHashTag({
+        hashtags,
+        postId: id,
+      });
       return {
         ok: true,
       };
