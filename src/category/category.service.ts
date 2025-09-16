@@ -10,7 +10,6 @@ import {
   GetCategoriesOutput,
   GetParentCategoriesOutput,
 } from './dto/get-categories.dto';
-import { PostUseYn } from 'src/post/entity/post.entity';
 
 @Injectable()
 export class CategoryService {
@@ -176,17 +175,33 @@ export class CategoryService {
   }
 
   async getCategoryCounts(): Promise<GetCategoriesCountOutput> {
-    const categoryCounts = await this.category
-      .createQueryBuilder('a')
-      .innerJoin('post', 'b', 'a.id = b.categoryId') // 'post' 테이블과의 조인
-      .select('a.categoryTitle', 'categoryTitle')
-      .addSelect('COUNT(a.categoryTitle)', 'count')
-      .addSelect('a.id', 'id')
-      .where('b.postUseYn = :postUseYn', {
-        postUseYn: PostUseYn.Y,
-      })
-      .groupBy('a.id')
-      .getRawMany(); // 결과를 원시 데이터 형태로 가져옴
+    const categoryCounts = [];
+    const map = new Map();
+
+    const getCategories = await this.category.find();
+
+    if (getCategories.length > 0) {
+      getCategories.forEach((category) => {
+        map.set(category.id, {
+          ...category,
+          count: category.post?.length || 0,
+          children: [],
+        });
+      });
+    }
+
+    getCategories.forEach((category) => {
+      const node = map.get(category.id);
+      if (category.parentCategoryId) {
+        const parent = map.get(category.parentCategoryId);
+        if (parent) {
+          parent.children.push(node);
+          parent.count += node.count;
+        }
+      } else {
+        categoryCounts.push(node);
+      }
+    });
 
     return {
       ok: true,
