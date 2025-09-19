@@ -70,4 +70,12 @@ export class PostResolver {
   ): Promise<getPostListByCategoryIdOutput> {
     return this.postService.getPostListByCategoryId(categoryId);
   }
+
+  @Query(() => getPostListByCategoryIdOutput, { nullable: true })
+  @Public()
+  getPostListByParentCategoryId(
+    @Args('categoryId', { type: () => Int }) categoryId: number,
+  ): Promise<getPostListByCategoryIdOutput> {
+    return this.postService.getPostListByParentCategoryId(categoryId);
+  }
 }
