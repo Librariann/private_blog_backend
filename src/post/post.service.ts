@@ -91,7 +91,9 @@ export class PostService {
       }
 
       await this.post.update(
-        { id },
+        {
+          id,
+        },
         {
           title,
           contents,
@@ -174,6 +176,7 @@ export class PostService {
 
   async getPostList(): Promise<GetPostListOutput> {
     try {
+      const map = new Map();
       const posts = await this.post.find({
         relations: ['category', 'hashtags', 'comments'],
         order: {
@@ -183,6 +186,28 @@ export class PostService {
           postUseYn: PostUseYn.Y,
         },
       });
+      console.log(posts);
+
+      const getParentCategory = await this.category.find();
+      const filterParentCategory = getParentCategory.filter(
+        (category) => category.parentCategoryId === null,
+      );
+
+      posts.forEach((post) => {
+        map.set(post.id, {
+          ...post,
+        });
+      });
+
+      posts.forEach((post) => {
+        const getPost = map.get(post.id);
+        filterParentCategory.find((category) => {
+          if (category.id === getPost.category.parentCategoryId) {
+            getPost.category.parentCategoryTitle = category.categoryTitle;
+          }
+        });
+      });
+
       return {
         ok: true,
         posts,
@@ -249,6 +274,57 @@ export class PostService {
           error: '게시물이 존재하지 않습니다.',
         };
       }
+      const getParentCategory = await this.category.findOneByOrFail({
+        id: posts[0].category.parentCategoryId,
+      });
+
+      posts.forEach((post) => {
+        post.category.parentCategoryTitle = getParentCategory.categoryTitle;
+      });
+
+      return {
+        ok: true,
+        posts,
+      };
+    } catch (e) {
+      return {
+        ok: false,
+        error: `관리자에게 문의해주세요 ${e}`,
+      };
+    }
+  }
+
+  async getPostListByParentCategoryId(
+    categoryId: number,
+  ): Promise<getPostListByCategoryIdOutput> {
+    try {
+      const posts = await this.post.find({
+        where: {
+          category: {
+            parentCategoryId: categoryId,
+          },
+          postUseYn: PostUseYn.Y,
+        },
+        relations: ['category', 'comments', 'hashtags'],
+        order: {
+          createdAt: 'DESC',
+        },
+      });
+
+      if (!posts) {
+        return {
+          ok: false,
+          error: '게시물이 존재하지 않습니다.',
+        };
+      }
+
+      const getParentCategory = await this.category.findOneByOrFail({
+        id: categoryId,
+      });
+
+      posts.forEach((post) => {
+        post.category.parentCategoryTitle = getParentCategory.categoryTitle;
+      });
 
       return {
         ok: true,
