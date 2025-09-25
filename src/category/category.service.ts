@@ -8,6 +8,7 @@ import { EditCategoryInput, EditCategoryOutput } from './dto/edit-category.dto';
 import {
   GetCategoriesCountOutput,
   GetCategoriesOutput,
+  GetParentCategoriesOutput,
 } from './dto/get-categories.dto';
 import { PostUseYn } from 'src/post/entity/post.entity';
 
@@ -18,12 +19,60 @@ export class CategoryService {
     private readonly category: Repository<Category>,
   ) {}
 
-  async createCategory(categoryTitle: string): Promise<CreateCategoryOutput> {
+  async createCategory(
+    categoryTitle: string,
+    categoryParentId?: number,
+  ): Promise<CreateCategoryOutput> {
     try {
+      // 1. 카테고리 이름 중복 체크
+      const existCategoryTitle = await this.category.findOne({
+        where: { categoryTitle },
+      });
+
+      if (existCategoryTitle) {
+        return {
+          ok: false,
+          error: '같은 이름의 카테고리가 존재합니다.',
+        };
+      }
+
+      // 2. 부모 카테고리 존재 여부 체크 (부모 ID가 있는 경우만)
+      if (categoryParentId) {
+        const existParentCategory = await this.category.findOne({
+          where: { id: categoryParentId },
+        });
+
+        if (!existParentCategory) {
+          return {
+            ok: false,
+            error: '부모 카테고리가 존재하지 않습니다.',
+          };
+        }
+      }
+
+      // 3. 같은 부모 하위의 카테고리 개수 조회 (sortOrder 계산용)
+      const categoryParentCheck = await this.category.find({
+        where: {
+          parentCategoryId: categoryParentId || null,
+        },
+      });
+
       const newCategory = this.category.create({
         categoryTitle,
       });
+
+      if (categoryParentCheck.length > 0) {
+        newCategory.sortOrder = categoryParentCheck.length + 1;
+      } else {
+        newCategory.sortOrder = 1;
+      }
+
+      if (categoryParentId) {
+        newCategory.parentCategoryId = categoryParentId;
+      }
+
       await this.category.save(newCategory);
+
       return {
         ok: true,
         categoryId: newCategory.id,
@@ -103,7 +152,9 @@ export class CategoryService {
 
   async getCategories(): Promise<GetCategoriesOutput> {
     try {
-      const getCategories = await this.category.find();
+      const getCategories = await this.category.find({
+        order: { sortOrder: 'ASC' },
+      });
       return {
         ok: true,
         categories: getCategories,
@@ -140,6 +191,18 @@ export class CategoryService {
     return {
       ok: true,
       categoryCounts,
+    };
+  }
+
+  async getParentCategories(): Promise<GetParentCategoriesOutput> {
+    const getParentCategories = await this.category.find({
+      where: { parentCategoryId: null },
+      order: { sortOrder: 'DESC' },
+    });
+
+    return {
+      ok: true,
+      categories: getParentCategories,
     };
   }
 }
