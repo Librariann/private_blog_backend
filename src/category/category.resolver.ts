@@ -17,8 +17,11 @@ export class CategoryResolver {
   @Mutation(() => CreateCategoryOutput)
   createCategory(
     @Args('categoryTitle', { type: () => String }) categoryTitle: string,
+    @Args('categoryParentId', { type: () => Int, nullable: true })
+    categoryParentId?: number,
   ): Promise<CreateCategoryOutput> {
-    return this.categoryService.createCategory(categoryTitle);
+    console.log(categoryTitle, categoryParentId);
+    return this.categoryService.createCategory(categoryTitle, categoryParentId);
   }
 
   @Mutation(() => EditCategoryOutput)
@@ -46,4 +49,9 @@ export class CategoryResolver {
   getCategoriesCounts(): Promise<GetCategoriesCountOutput> {
     return this.categoryService.getCategoryCounts();
   }
+
+  // @Query(() => GetParentCategoriesOutput)
+  // getParentCategories(): Promise<GetParentCategoriesOutput> {
+  //   return this.categoryService.getParentCategories();
+  // }
 }
