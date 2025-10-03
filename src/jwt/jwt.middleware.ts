@@ -20,10 +20,6 @@ export class JwtMiddleware implements NestMiddleware {
         }
       } catch (e) {
         console.log(e);
-        // if (e.name === 'TokenExpiredError') {
-        //   console.log('??');
-        //   console.log(e);
-        // }
       }
     }
     next();
