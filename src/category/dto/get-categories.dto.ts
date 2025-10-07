@@ -25,3 +25,9 @@ export class GetCategoriesCountOutput extends Output {
   @Field(() => [CategoryCount], { nullable: true })
   categoryCounts?: CategoryCount[];
 }
+
+@ObjectType()
+export class GetParentCategoriesOutput extends Output {
+  @Field(() => [Category], { nullable: true })
+  categories?: Category[];
+}
