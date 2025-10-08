@@ -4,9 +4,10 @@ import {
   CreateCommentInput,
   CreateCommentOutput,
 } from './dto/create-comment.dto';
-import { User } from 'src/user/entity/user.entity';
-import { AuthUser } from 'src/auth/auth-user.decorator';
-import { DeleteCommentOutput } from './dto/delete-comment.dto';
+import {
+  DeleteCommentInput,
+  DeleteCommentOutput,
+} from './dto/delete-comment.dto';
 import { EditCommentInput, EditCommentOutput } from './dto/edit-comment.dto';
 import { Comment } from './entity/comment.entity';
 import { Public } from 'src/auth/public.decorator';
@@ -27,16 +28,16 @@ export class CommentResolver {
   @Mutation(() => EditCommentOutput)
   @Public()
   editComment(
-    @AuthUser() user: User,
     @Args('input') editCommentInput: EditCommentInput,
   ): Promise<EditCommentOutput> {
-    return this.commentService.editComment(user, editCommentInput);
+    console.log(editCommentInput);
+    return this.commentService.editComment(editCommentInput);
   }
 
   @Mutation(() => DeleteCommentOutput)
   @Public()
-  deleteComment(@Args('commentId', { type: () => Int }) commentId: number) {
-    return this.commentService.deleteComment(commentId);
+  deleteComment(@Args('input') deleteCommentInput: DeleteCommentInput) {
+    return this.commentService.deleteComment(deleteCommentInput);
   }
 
   @Query(() => GetCommentOutput)
