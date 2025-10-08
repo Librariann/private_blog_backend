@@ -13,11 +13,13 @@ import { User } from 'src/user/entity/user.entity';
 import { Category } from 'src/category/entity/category.entity';
 import { Hashtag } from 'src/hashtag/entity/hashtag.entity';
 
-export enum PostUseYn {
-  Y = 'Y',
-  N = 'N',
+export enum PostStatus {
+  DRAFT = 'DRAFT', // 임시저장
+  PUBLISHED = 'PUBLISHED', // 공개
+  PRIVATE = 'PRIVATE', // 비공개
+  DELETED = 'DELETED', // 삭제
 }
-registerEnumType(PostUseYn, { name: 'PostUseYn' });
+registerEnumType(PostStatus, { name: 'PostStatus' });
 @InputType('PostInputType', { isAbstract: true })
 @ObjectType()
 @Entity({ schema: 'private_blog' })
@@ -71,8 +73,8 @@ export class Post extends CoreEntity {
   @IsNumber()
   readTime: number;
 
-  @Column({ type: 'enum', enum: PostUseYn, default: PostUseYn.Y })
-  @Field(() => PostUseYn)
+  @Column({ type: 'enum', enum: PostStatus, default: PostStatus.PUBLISHED })
+  @Field(() => PostStatus)
   @IsString()
-  postUseYn: PostUseYn;
+  postStatus?: PostStatus;
 }
