@@ -1,7 +1,7 @@
 import { CoreEntity } from 'src/common/entity/core.entity';
 import { Entity, Column, OneToMany } from 'typeorm';
 import { Field, ObjectType, InputType } from '@nestjs/graphql';
-import { IsString } from 'class-validator';
+import { IsNumber, IsString } from 'class-validator';
 import { Post } from 'src/post/entity/post.entity';
 
 @InputType('CategoryInputType', { isAbstract: true })
@@ -12,6 +12,21 @@ export class Category extends CoreEntity {
   @Field(() => String)
   @IsString()
   categoryTitle: string;
+
+  @Column({ nullable: true })
+  @Field(() => Number, { nullable: true })
+  @IsNumber()
+  depth?: number;
+
+  @Column({ nullable: true })
+  @Field(() => Number, { nullable: true })
+  @IsNumber()
+  parentCategoryId?: number;
+
+  @Column({ nullable: true })
+  @Field(() => Number, { nullable: true })
+  @IsNumber()
+  sortOrder?: number;
 
   @OneToMany(() => Post, (post) => post.category, {
     onDelete: 'SET NULL',
