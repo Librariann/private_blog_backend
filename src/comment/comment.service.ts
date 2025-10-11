@@ -8,7 +8,10 @@ import { Comment } from './entity/comment.entity';
 import { Repository } from 'typeorm';
 import { User } from 'src/user/entity/user.entity';
 import { Post } from 'src/post/entity/post.entity';
-import { DeleteCommentOutput } from './dto/delete-comment.dto';
+import {
+  DeleteCommentInput,
+  DeleteCommentOutput,
+} from './dto/delete-comment.dto';
 import { EditCommentInput, EditCommentOutput } from './dto/edit-comment.dto';
 import { GetCommentOutput } from './dto/get-comment.dto';
 import { PostService } from 'src/post/post.service';
@@ -61,25 +64,17 @@ export class CommentService {
     }
   }
 
-  async editComment(
-    user: User,
-    { id, comment }: EditCommentInput,
-  ): Promise<EditCommentOutput> {
+  async editComment({
+    id,
+    comment,
+    commentPassword,
+  }: EditCommentInput): Promise<EditCommentOutput> {
     try {
       const existComment = await this.comment.findOneOrFail({
         where: {
           id,
         },
       });
-
-      const compareUserBool = this.compareCommentUser(user, existComment);
-
-      if (!compareUserBool) {
-        return {
-          ok: false,
-          error: '작성된 댓글의 유저가 아닙니다.',
-        };
-      }
 
       if (!existComment) {
         return {
@@ -88,12 +83,17 @@ export class CommentService {
         };
       }
 
-      await this.comment.save([
-        {
-          id,
-          comment,
-        },
-      ]);
+      const passwordCheck = await existComment.checkPassword(commentPassword);
+
+      if (!passwordCheck) {
+        return {
+          ok: false,
+          error: '댓글 비밀번호가 일치하지 않습니다.',
+        };
+      }
+
+      await this.comment.update({ id }, { comment });
+
       return {
         ok: true,
         error: '댓글이 수정 됐습니다.',
@@ -107,22 +107,37 @@ export class CommentService {
     }
   }
 
-  async deleteComment(commentId: number): Promise<DeleteCommentOutput> {
+  async deleteComment({
+    id,
+    commentPassword,
+  }: DeleteCommentInput): Promise<DeleteCommentOutput> {
     try {
       const existComment = await this.comment.findOneOrFail({
         where: {
-          id: commentId,
+          id,
         },
       });
+
       if (!existComment) {
         return {
           ok: false,
           error: '해당 댓글이 존재하지 않습니다.',
         };
       }
+
+      const passwordCheck = await existComment.checkPassword(commentPassword);
+
+      if (!passwordCheck) {
+        return {
+          ok: false,
+          error: '댓글 비밀번호가 일치하지 않습니다.',
+        };
+      }
+
       await this.comment.delete({
-        id: commentId,
+        id,
       });
+
       return {
         ok: true,
         error: '댓글 삭제가 완료됐습니다.',
