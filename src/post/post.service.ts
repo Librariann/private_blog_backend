@@ -10,11 +10,12 @@ import { EditPostInput, EditPostOutput } from './dto/edit-post.dto';
 import { DeletePostOutput } from './dto/delete-post.dto';
 import { User } from 'src/user/entity/user.entity';
 import { Category } from 'src/category/entity/category.entity';
-import { Post, PostUseYn } from 'src/post/entity/post.entity';
+import { Post, PostStatus } from 'src/post/entity/post.entity';
 import { UpdatePostHitsOutput } from './dto/update-post-hits.dto';
 import { GetPostByIdOutput } from './dto/get-post-by-id.dto';
 import { logger } from 'src/logger/winston';
 import { HashtagService } from 'src/hashtag/hashtag.service';
+import { TogglePostStatus } from './dto/toggle-post-status.dto';
 
 @Injectable()
 export class PostService {
@@ -145,7 +146,48 @@ export class PostService {
           id: postId,
         },
         {
-          postUseYn: PostUseYn.N,
+          postStatus: PostStatus.DELETED,
+        },
+      );
+
+      return {
+        ok: true,
+      };
+    } catch (e) {
+      console.log(e);
+      return {
+        ok: false,
+        error: '게시글을 삭제 할 수 없습니다.',
+      };
+    }
+  }
+
+  async togglePostStatus(postId: number): Promise<TogglePostStatus> {
+    try {
+      const postExistCheck = await this.post.findOneByOrFail({
+        id: postId,
+      });
+
+      if (!postExistCheck) {
+        return {
+          ok: false,
+          error: '해당 게시글이 없습니다.',
+        };
+      }
+
+      let postStatus = postExistCheck.postStatus;
+      if (postStatus !== PostStatus.PUBLISHED) {
+        postStatus = PostStatus.PUBLISHED;
+      } else {
+        postStatus = PostStatus.PRIVATE;
+      }
+
+      await this.post.update(
+        {
+          id: postId,
+        },
+        {
+          postStatus,
         },
       );
 
@@ -194,7 +236,7 @@ export class PostService {
           createdAt: 'DESC',
         },
         where: {
-          postUseYn: PostUseYn.Y,
+          postStatus: PostStatus.PUBLISHED,
         },
       });
 
@@ -203,13 +245,13 @@ export class PostService {
         (category) => category.parentCategoryId === null,
       );
 
-      posts.forEach((post) => {
+      posts?.forEach((post) => {
         map.set(post.id, {
           ...post,
         });
       });
 
-      posts.forEach((post) => {
+      posts?.forEach((post) => {
         const getPost = map.get(post.id);
         filterParentCategory.find((category) => {
           if (category.id === getPost.category.parentCategoryId) {
@@ -236,7 +278,6 @@ export class PostService {
       const post = await this.post.findOne({
         where: {
           id: postId,
-          postUseYn: PostUseYn.Y,
         },
         relations: ['category', 'comments', 'hashtags', 'user'],
       });
@@ -270,7 +311,7 @@ export class PostService {
           category: {
             id: categoryId,
           },
-          postUseYn: PostUseYn.Y,
+          postStatus: PostStatus.PUBLISHED,
         },
         relations: ['category', 'comments', 'hashtags'],
         order: {
@@ -288,7 +329,7 @@ export class PostService {
         id: posts[0].category.parentCategoryId,
       });
 
-      posts.forEach((post) => {
+      posts?.forEach((post) => {
         post.category.parentCategoryTitle = getParentCategory.categoryTitle;
       });
 
@@ -313,7 +354,7 @@ export class PostService {
           category: {
             parentCategoryId: categoryId,
           },
-          postUseYn: PostUseYn.Y,
+          postStatus: PostStatus.PUBLISHED,
         },
         relations: ['category', 'comments', 'hashtags'],
         order: {
@@ -332,7 +373,7 @@ export class PostService {
         id: categoryId,
       });
 
-      posts.forEach((post) => {
+      posts?.forEach((post) => {
         post.category.parentCategoryTitle = getParentCategory.categoryTitle;
       });
 
@@ -344,6 +385,48 @@ export class PostService {
       return {
         ok: false,
         error: `관리자에게 문의해주세요 ${e}`,
+      };
+    }
+  }
+
+  async getAllPostList(): Promise<GetPostListOutput> {
+    try {
+      const map = new Map();
+      const posts = await this.post.find({
+        relations: ['category', 'hashtags', 'comments'],
+        order: {
+          createdAt: 'DESC',
+        },
+      });
+
+      const getParentCategory = await this.category.find();
+      const filterParentCategory = getParentCategory.filter(
+        (category) => category.parentCategoryId === null,
+      );
+
+      posts?.forEach((post) => {
+        map.set(post.id, {
+          ...post,
+        });
+      });
+
+      posts?.forEach((post) => {
+        const getPost = map.get(post.id);
+        filterParentCategory.find((category) => {
+          if (category.id === getPost.category.parentCategoryId) {
+            getPost.category.parentCategoryTitle = category.categoryTitle;
+          }
+        });
+      });
+
+      return {
+        ok: true,
+        posts,
+      };
+    } catch (e) {
+      return {
+        ok: false,
+        error: '리스트를 가져올 수 없습니다.',
       };
     }
   }
