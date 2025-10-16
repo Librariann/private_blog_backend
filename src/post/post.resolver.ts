@@ -13,6 +13,7 @@ import { AuthUser } from 'src/auth/auth-user.decorator';
 import { UpdatePostHitsOutput } from './dto/update-post-hits.dto';
 import { GetPostByIdOutput } from './dto/get-post-by-id.dto';
 import { Public } from 'src/auth/public.decorator';
+import { TogglePostStatus } from './dto/toggle-post-status.dto';
 
 @Resolver(() => Post)
 export class PostResolver {
@@ -41,6 +42,13 @@ export class PostResolver {
   @Mutation(() => DeletePostOutput)
   deletePost(@Args('postId', { type: () => Int }) postId: number) {
     return this.postService.deletePost(postId);
+  }
+
+  @Mutation(() => TogglePostStatus)
+  togglePostStatus(
+    @Args('postId', { type: () => Int }) postId: number,
+  ): Promise<TogglePostStatus> {
+    return this.postService.togglePostStatus(postId);
   }
 
   @Mutation(() => UpdatePostHitsOutput)
@@ -77,5 +85,10 @@ export class PostResolver {
     @Args('categoryId', { type: () => Int }) categoryId: number,
   ): Promise<getPostListByCategoryIdOutput> {
     return this.postService.getPostListByParentCategoryId(categoryId);
+  }
+
+  @Query(() => GetPostListOutput)
+  getAllPostList(): Promise<GetPostListOutput> {
+    return this.postService.getAllPostList();
   }
 }
