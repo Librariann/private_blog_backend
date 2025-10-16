@@ -1,9 +1,17 @@
-import { InputType, ObjectType, PickType } from '@nestjs/graphql';
+import { Field, InputType, Int, ObjectType } from '@nestjs/graphql';
 import { Output } from 'src/common/dto/output.dto';
-import { Comment } from '../entity/comment.entity';
 
 @InputType()
-export class EditCommentInput extends PickType(Comment, ['id', 'comment']) {}
+export class EditCommentInput {
+  @Field(() => Int)
+  id: number;
+
+  @Field(() => String)
+  commentPassword: string;
+
+  @Field(() => String)
+  comment: string;
+}
 
 @ObjectType()
 export class EditCommentOutput extends Output {}
