@@ -10,7 +10,7 @@ import { JwtService } from 'src/jwt/jwt.service';
 import { logger } from 'src/logger/winston';
 import { UpdatePasswordOutput } from './dto/update-password.dto';
 import { User } from 'src/user/entity/user.entity';
-import { PostUseYn } from 'src/post/entity/post.entity';
+import { PostStatus } from 'src/post/entity/post.entity';
 import {
   UpdateUserProfileInput,
   UpdateUserProfileOutput,
@@ -119,9 +119,6 @@ export class UserService {
       const userInfo = await this.user.findOneOrFail({
         where: {
           id,
-          posts: {
-            postUseYn: PostUseYn.Y,
-          },
         },
         relations: ['posts', 'posts.comments'],
         order: {
@@ -142,13 +139,9 @@ export class UserService {
 
   async findByNickName(nickName: string): Promise<UserProfileOutput> {
     try {
-      console.log(nickName);
       const userInfo = await this.user.findOneOrFail({
         where: {
           nickname: nickName,
-          posts: {
-            postUseYn: PostUseYn.Y,
-          },
         },
         relations: ['posts', 'posts.comments'],
         order: {
