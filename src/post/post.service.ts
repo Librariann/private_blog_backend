@@ -91,9 +91,7 @@ export class PostService {
       }
 
       await this.post.update(
-        {
-          id,
-        },
+        { id },
         {
           title,
           contents,
