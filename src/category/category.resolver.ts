@@ -20,7 +20,6 @@ export class CategoryResolver {
     @Args('categoryParentId', { type: () => Int, nullable: true })
     categoryParentId?: number,
   ): Promise<CreateCategoryOutput> {
-    console.log(categoryTitle, categoryParentId);
     return this.categoryService.createCategory(categoryTitle, categoryParentId);
   }
 
