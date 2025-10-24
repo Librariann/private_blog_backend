@@ -30,7 +30,6 @@ export class CommentResolver {
   editComment(
     @Args('input') editCommentInput: EditCommentInput,
   ): Promise<EditCommentOutput> {
-    console.log(editCommentInput);
     return this.commentService.editComment(editCommentInput);
   }
 
