@@ -10,7 +10,7 @@ import {
   GetCategoriesOutput,
   GetParentCategoriesOutput,
 } from './dto/get-categories.dto';
-import { PostUseYn } from 'src/post/entity/post.entity';
+import { PostStatus } from 'src/post/entity/post.entity';
 
 @Injectable()
 export class CategoryService {
@@ -181,13 +181,13 @@ export class CategoryService {
 
     const getCategories = await this.category
       .createQueryBuilder('category')
-      .leftJoinAndSelect('category.post', 'post', 'post.postUseYn = :useYn', {
-        useYn: PostUseYn.Y,
+      .leftJoinAndSelect('category.post', 'post', 'post.postStatus = :status', {
+        status: PostStatus.PUBLISHED,
       })
       .getMany();
 
     if (getCategories.length > 0) {
-      getCategories.forEach((category) => {
+      getCategories?.forEach((category) => {
         map.set(category.id, {
           ...category,
           count: category.post?.length || 0,
@@ -196,7 +196,7 @@ export class CategoryService {
       });
     }
 
-    getCategories.forEach((category) => {
+    getCategories?.forEach((category) => {
       const node = map.get(category.id);
       if (category.parentCategoryId) {
         const parent = map.get(category.parentCategoryId);
