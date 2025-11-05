@@ -7,6 +7,7 @@ export class EditPostInput extends PickType(Post, [
   'id',
   'title',
   'contents',
+  'thumbnailUrl',
 ]) {}
 
 @ObjectType()

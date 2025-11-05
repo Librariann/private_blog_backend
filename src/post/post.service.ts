@@ -68,7 +68,7 @@ export class PostService {
 
   async editPost(
     user: User,
-    { id, title, contents }: EditPostInput,
+    { id, title, contents, thumbnailUrl }: EditPostInput,
   ): Promise<EditPostOutput> {
     try {
       const existPost = await this.getPostFindOne(id);
@@ -94,6 +94,7 @@ export class PostService {
           id,
           title,
           contents,
+          thumbnailUrl,
         },
       ]);
       return {
