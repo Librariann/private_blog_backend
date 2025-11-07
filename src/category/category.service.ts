@@ -9,6 +9,7 @@ import {
   GetCategoriesCountOutput,
   GetCategoriesOutput,
 } from './dto/get-categories.dto';
+import { PostUseYn } from 'src/post/entity/post.entity';
 
 @Injectable()
 export class CategoryService {
@@ -130,6 +131,9 @@ export class CategoryService {
       .select('a.categoryTitle', 'categoryTitle')
       .addSelect('COUNT(a.categoryTitle)', 'count')
       .addSelect('a.id', 'id')
+      .where('b.postUseYn = :postUseYn', {
+        postUseYn: PostUseYn.Y,
+      })
       .groupBy('a.id')
       .getRawMany(); // 결과를 원시 데이터 형태로 가져옴
 
