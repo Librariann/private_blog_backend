@@ -1,12 +1,23 @@
 import { CoreEntity } from 'src/common/entity/core.entity';
 import { Entity, Column, ManyToOne, OneToMany, RelationId } from 'typeorm';
-import { Field, ObjectType, InputType, Int } from '@nestjs/graphql';
+import {
+  Field,
+  ObjectType,
+  InputType,
+  Int,
+  registerEnumType,
+} from '@nestjs/graphql';
 import { IsInt, IsString } from 'class-validator';
 import { Comment } from 'src/comment/entity/comment.entity';
 import { User } from 'src/user/entity/user.entity';
 import { Category } from 'src/category/entity/category.entity';
 import { Hashtag } from 'src/hashtag/entity/hashtag.entity';
 
+export enum PostUseYn {
+  Y = 'Y',
+  N = 'N',
+}
+registerEnumType(PostUseYn, { name: 'PostUseYn' });
 @InputType('PostInputType', { isAbstract: true })
 @ObjectType()
 @Entity({ schema: 'private_blog' })
@@ -49,4 +60,9 @@ export class Post extends CoreEntity {
   @Field(() => String, { nullable: true })
   @IsString()
   thumbnailUrl?: string;
+
+  @Column({ type: 'enum', enum: PostUseYn, default: PostUseYn.Y })
+  @Field(() => PostUseYn)
+  @IsString()
+  postUseYn: PostUseYn;
 }
