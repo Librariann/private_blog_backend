@@ -10,7 +10,7 @@ import { EditPostInput, EditPostOutput } from './dto/edit-post.dto';
 import { DeletePostOutput } from './dto/delete-post.dto';
 import { User } from 'src/user/entity/user.entity';
 import { Category } from 'src/category/entity/category.entity';
-import { Post } from 'src/post/entity/post.entity';
+import { Post, PostUseYn } from 'src/post/entity/post.entity';
 import { UpdatePostHitsOutput } from './dto/update-post-hits.dto';
 import { GetPostByIdOutput } from './dto/get-post-by-id.dto';
 import { logger } from 'src/logger/winston';
@@ -90,14 +90,16 @@ export class PostService {
         };
       }
 
-      await this.post.save([
+      await this.post.update(
         {
           id,
+        },
+        {
           title,
           contents,
           thumbnailUrl,
         },
-      ]);
+      );
       await this.hashtagService.updateHashTag({
         hashtags,
         postId: id,
@@ -127,9 +129,14 @@ export class PostService {
         };
       }
 
-      await this.post.delete({
-        id: postId,
-      });
+      await this.post.update(
+        {
+          id: postId,
+        },
+        {
+          postUseYn: PostUseYn.N,
+        },
+      );
 
       return {
         ok: true,
@@ -174,6 +181,9 @@ export class PostService {
         order: {
           createdAt: 'DESC',
         },
+        where: {
+          postUseYn: PostUseYn.Y,
+        },
       });
       return {
         ok: true,
@@ -193,6 +203,7 @@ export class PostService {
       const post = await this.post.findOne({
         where: {
           id: postId,
+          postUseYn: PostUseYn.Y,
         },
         relations: ['category', 'comments', 'hashtags', 'user'],
       });
@@ -226,6 +237,7 @@ export class PostService {
           category: {
             id: categoryId,
           },
+          postUseYn: PostUseYn.Y,
         },
         relations: ['category', 'comments', 'hashtags'],
         order: {
@@ -248,52 +260,6 @@ export class PostService {
       return {
         ok: false,
         error: `관리자에게 문의해주세요 ${e}`,
-      };
-    }
-  }
-
-  // Query Builder를 사용한 정렬 방식 (더 복잡한 쿼리에 사용)
-  async getPostListWithQueryBuilder(): Promise<GetPostListOutput> {
-    try {
-      const posts = await this.post
-        .createQueryBuilder('post')
-        .leftJoinAndSelect('post.category', 'category')
-        .leftJoinAndSelect('post.hashtags', 'hashtags')
-        .leftJoinAndSelect('post.comments', 'comments')
-        .orderBy('post.createdAt', 'DESC')
-        .getMany();
-
-      return {
-        ok: true,
-        posts,
-      };
-    } catch (e) {
-      return {
-        ok: false,
-        error: '리스트를 가져올 수 없습니다.',
-      };
-    }
-  }
-
-  // 다중 정렬 기준 예시
-  async getPostListWithMultipleOrdering(): Promise<GetPostListOutput> {
-    try {
-      const posts = await this.post.find({
-        relations: ['category', 'hashtags', 'comments'],
-        order: {
-          createdAt: 'DESC',
-          hits: 'DESC', // 조회수도 내림차순으로 정렬
-          title: 'ASC', // 제목은 오름차순
-        },
-      });
-      return {
-        ok: true,
-        posts,
-      };
-    } catch (e) {
-      return {
-        ok: false,
-        error: '리스트를 가져올 수 없습니다.',
       };
     }
   }
