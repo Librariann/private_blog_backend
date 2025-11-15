@@ -10,6 +10,8 @@ import {
   UpdateHashTagInput,
   UpdateHashTagOutput,
 } from './dto/update-hashtag.dto';
+import { GetAllPopularHashTagsOutput } from './dto/get-all-popular-hashtags.dto';
+import { Public } from 'src/auth/public.decorator';
 
 @Resolver(() => Hashtag)
 export class HashtagResolver {
@@ -32,5 +34,11 @@ export class HashtagResolver {
   @Query(() => GetHashTagOutput)
   getHashTagList(): Promise<GetHashTagOutput> {
     return this.hashtagService.getHashTagList();
+  }
+
+  @Query(() => GetAllPopularHashTagsOutput)
+  @Public()
+  getAllPopularHashTags(): Promise<GetAllPopularHashTagsOutput> {
+    return this.hashtagService.getAllPopularHashTags();
   }
 }

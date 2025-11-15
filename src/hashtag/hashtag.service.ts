@@ -12,6 +12,7 @@ import {
   UpdateHashTagInput,
   UpdateHashTagOutput,
 } from './dto/update-hashtag.dto';
+import { GetAllPopularHashTagsOutput } from './dto/get-all-popular-hashtags.dto';
 
 @Injectable()
 export class HashtagService {
@@ -117,6 +118,31 @@ export class HashtagService {
       return {
         ok: false,
         error: '해시태그를 업데이트 할 수 없습니다. 관리자에게 문의해주세요',
+      };
+    }
+  }
+
+  async getAllPopularHashTags(): Promise<GetAllPopularHashTagsOutput> {
+    try {
+      const hashtags = await this.hashtag
+        .createQueryBuilder('hashtag')
+        .select('hashtag.hashtag', 'hashtag')
+        .addSelect('COUNT(hashtag.hashtag)', 'count')
+        .groupBy('hashtag.hashtag')
+        .orderBy('count', 'DESC')
+        .getRawMany();
+
+      const result = hashtags.slice(0, 10);
+
+      return {
+        ok: true,
+        hashtags: result,
+      };
+    } catch (e) {
+      console.log(e);
+      return {
+        ok: false,
+        error: '해시태그를 가져올 수 없습니다. 관리자에게 문의해주세요.',
       };
     }
   }
