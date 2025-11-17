@@ -46,6 +46,11 @@ export class PostService {
       const newPost = this.post.create(createPostInput);
       newPost.user = user;
       newPost.category = getCategory;
+
+      if (newPost.contents) {
+        newPost.readTime = this.calculateReadTime(newPost.contents);
+      }
+
       await this.post.save(newPost);
       if (hashtags && hashtags.length > 0) {
         await this.hashtagService.createHashTag({
@@ -89,16 +94,22 @@ export class PostService {
           error: '해당 글이 존재하지 않습니다.',
         };
       }
+      const updatePost = {
+        title,
+        contents,
+        thumbnailUrl,
+        readTime: 1,
+      };
+
+      if (updatePost.contents) {
+        updatePost.readTime = this.calculateReadTime(updatePost.contents);
+      }
 
       await this.post.update(
         {
           id,
         },
-        {
-          title,
-          contents,
-          thumbnailUrl,
-        },
+        updatePost,
       );
       await this.hashtagService.updateHashTag({
         hashtags,
@@ -186,7 +197,6 @@ export class PostService {
           postUseYn: PostUseYn.Y,
         },
       });
-      console.log(posts);
 
       const getParentCategory = await this.category.find();
       const filterParentCategory = getParentCategory.filter(
@@ -345,5 +355,13 @@ export class PostService {
     }
 
     return true;
+  }
+
+  calculateReadTime(contents: string): number {
+    const avgChars = 350;
+    const totalChars = contents.replace(/\s/g, '').length;
+    const readTimeMinutes = Math.ceil(totalChars / avgChars);
+
+    return Math.max(1, readTimeMinutes);
   }
 }

@@ -7,7 +7,7 @@ import {
   Int,
   registerEnumType,
 } from '@nestjs/graphql';
-import { IsInt, IsString } from 'class-validator';
+import { IsInt, IsNumber, IsString } from 'class-validator';
 import { Comment } from 'src/comment/entity/comment.entity';
 import { User } from 'src/user/entity/user.entity';
 import { Category } from 'src/category/entity/category.entity';
@@ -65,6 +65,11 @@ export class Post extends CoreEntity {
   @Field(() => String, { nullable: true })
   @IsString()
   thumbnailUrl?: string;
+
+  @Column({ nullable: false })
+  @Field(() => Int, { nullable: false })
+  @IsNumber()
+  readTime: number;
 
   @Column({ type: 'enum', enum: PostUseYn, default: PostUseYn.Y })
   @Field(() => PostUseYn)
