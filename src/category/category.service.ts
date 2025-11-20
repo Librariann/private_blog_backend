@@ -179,13 +179,12 @@ export class CategoryService {
     const categoryCounts = [];
     const map = new Map();
 
-    const getCategories = await this.category.find({
-      where: {
-        post: {
-          postUseYn: PostUseYn.Y,
-        },
-      },
-    });
+    const getCategories = await this.category
+      .createQueryBuilder('category')
+      .leftJoinAndSelect('category.post', 'post', 'post.postUseYn = :useYn', {
+        useYn: PostUseYn.Y,
+      })
+      .getMany();
 
     if (getCategories.length > 0) {
       getCategories.forEach((category) => {
