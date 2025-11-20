@@ -10,6 +10,7 @@ import {
   GetCategoriesOutput,
   GetParentCategoriesOutput,
 } from './dto/get-categories.dto';
+import { PostUseYn } from 'src/post/entity/post.entity';
 
 @Injectable()
 export class CategoryService {
@@ -178,7 +179,13 @@ export class CategoryService {
     const categoryCounts = [];
     const map = new Map();
 
-    const getCategories = await this.category.find();
+    const getCategories = await this.category.find({
+      where: {
+        post: {
+          postUseYn: PostUseYn.Y,
+        },
+      },
+    });
 
     if (getCategories.length > 0) {
       getCategories.forEach((category) => {
