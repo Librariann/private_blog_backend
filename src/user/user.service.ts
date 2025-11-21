@@ -10,6 +10,7 @@ import { JwtService } from 'src/jwt/jwt.service';
 import { logger } from 'src/logger/winston';
 import { UpdatePasswordOutput } from './dto/update-password.dto';
 import { User } from 'src/user/entity/user.entity';
+import { PostUseYn } from 'src/post/entity/post.entity';
 
 export class UserService {
   constructor(
@@ -47,14 +48,10 @@ export class UserService {
         return { ok: false, error: '유저를 찾지못했습니다' };
       }
 
-      //jwt의 중요점은 정보의 은닉이 아닌 정보가 변경됐는지를 파악하기 위해 사용하는것
-      //만약 정보가 변경됐다면 백엔드에서 발급한 토큰 값이랑 다르기때문에 토큰의 변경 진위여부를 파악할수있다
       const passwordCorrect = await user.checkPassword(password);
       if (!passwordCorrect) {
         return { ok: false, error: '비밀번호가 틀립니다.' };
       }
-      //sign에 user.id만 넘겨주는것은 이 프로젝트에서만 사용 할것이기때문에
-      //만약 다른 프로젝트에서 더 크게 사용한다면 object형태로 넘겨주면된다.
       const token = this.jwtService.sign(user.id);
       return { ok: true, error: '로그인 성공했습니다', token };
     } catch (e) {
@@ -70,8 +67,18 @@ export class UserService {
   async findById(id: number): Promise<UserProfileOutput> {
     try {
       const userInfo = await this.user.findOneOrFail({
-        where: { id },
-        relations: ['posts', 'comments'],
+        where: {
+          id,
+          posts: {
+            postUseYn: PostUseYn.Y,
+          },
+        },
+        relations: ['posts', 'posts.comments'],
+        order: {
+          posts: {
+            createdAt: 'DESC',
+          },
+        },
       });
       return { ok: true, user: userInfo };
     } catch (e) {

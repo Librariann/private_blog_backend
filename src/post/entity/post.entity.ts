@@ -53,13 +53,13 @@ export class Post extends CoreEntity {
   @ManyToOne(() => User, (user) => user.posts)
   user: User;
 
-  @Field(() => [Comment])
+  @Field(() => [Comment], { nullable: true })
   @OneToMany(() => Comment, (comment) => comment.post)
-  comments: Comment[];
+  comments?: Comment[];
 
-  @Field(() => [Hashtag])
+  @Field(() => [Hashtag], { nullable: true })
   @OneToMany(() => Hashtag, (hashtag) => hashtag.post)
-  hashtags: Hashtag[];
+  hashtags?: Hashtag[];
 
   @Column({ nullable: true })
   @Field(() => String, { nullable: true })

@@ -28,13 +28,38 @@ export class User extends CoreEntity {
   @IsString()
   profileImage?: string;
 
+  @Column({ nullable: true })
+  @Field(() => String, { nullable: true })
+  @IsString()
+  nickname: string;
+
+  @Column({ nullable: true })
+  @Field(() => String, { nullable: true })
+  @IsString()
+  introduce?: string;
+
+  @Column({ nullable: true })
+  @Field(() => String, { nullable: true })
+  @IsString()
+  location?: string;
+
+  @Column({ nullable: true })
+  @Field(() => String, { nullable: true })
+  @IsString()
+  website?: string;
+
+  @Column({ nullable: true })
+  @Field(() => String, { nullable: true })
+  @IsString()
+  role?: string;
+
   @Field(() => [Post])
   @OneToMany(() => Post, (post) => post.user)
-  posts: Post[];
+  posts?: Post[];
 
   @Field(() => [Comment])
   @OneToMany(() => Comment, (comment) => comment.user)
-  comments: Comment[];
+  comments?: Comment[];
 
   @BeforeInsert()
   @BeforeUpdate()
