@@ -11,7 +11,13 @@ import { logger } from 'src/logger/winston';
 import { UpdatePasswordOutput } from './dto/update-password.dto';
 import { User } from 'src/user/entity/user.entity';
 import { PostUseYn } from 'src/post/entity/post.entity';
+import {
+  UpdateUserProfileInput,
+  UpdateUserProfileOutput,
+} from './dto/update-user-profile.dto';
+import { Injectable } from '@nestjs/common';
 
+@Injectable()
 export class UserService {
   constructor(
     @InjectRepository(User)
@@ -34,6 +40,50 @@ export class UserService {
     } catch (e) {
       console.log(e);
       return { ok: false, error: '계정을 생성 할 수 없습니다.' };
+    }
+  }
+
+  async updateUserProfile(
+    authUser: User,
+    updateUserProfileInput: UpdateUserProfileInput,
+  ): Promise<UpdateUserProfileOutput> {
+    try {
+      const checkExistsUser = await this.user.findOne({
+        where: { email: authUser.email },
+      });
+
+      if (!checkExistsUser) {
+        return {
+          ok: false,
+          error: '계정정보가 존재하지않습니다 다시 확인해주세요.',
+        };
+      }
+
+      if (updateUserProfileInput.nickname) {
+        const checkExistNickName = await this.user.findOne({
+          where: { nickname: updateUserProfileInput.nickname },
+        });
+        if (checkExistNickName) {
+          return {
+            ok: false,
+            error: '동일한 닉네임이 존재합니다 다시 확인해주세요',
+          };
+        }
+      }
+
+      await this.user.update(
+        { id: authUser.id },
+        { ...updateUserProfileInput },
+      );
+
+      return { ok: true };
+    } catch (e) {
+      console.log(e);
+      logger.error('업데이트 불가', e);
+      return {
+        ok: false,
+        error: '업데이트가 불가능 합니다 담당자에게 문의해주세요',
+      };
     }
   }
 
@@ -69,6 +119,33 @@ export class UserService {
       const userInfo = await this.user.findOneOrFail({
         where: {
           id,
+          posts: {
+            postUseYn: PostUseYn.Y,
+          },
+        },
+        relations: ['posts', 'posts.comments'],
+        order: {
+          posts: {
+            createdAt: 'DESC',
+          },
+        },
+      });
+      return { ok: true, user: userInfo };
+    } catch (e) {
+      console.log(e);
+      return {
+        ok: false,
+        error: '기능에 이상이 있습니다. 관리자에게 문의해주세요.',
+      };
+    }
+  }
+
+  async findByNickName(nickName: string): Promise<UserProfileOutput> {
+    try {
+      console.log(nickName);
+      const userInfo = await this.user.findOneOrFail({
+        where: {
+          nickname: nickName,
           posts: {
             postUseYn: PostUseYn.Y,
           },
