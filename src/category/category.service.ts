@@ -31,21 +31,22 @@ export class CategoryService {
         where: { categoryTitle: createCategory.categoryTitle },
       });
 
-      if (existCategoryTitle) {
-        // 같은 부모 ID를 가진 경우 (메인 카테고리: 둘 다 null, 서브 카테고리: 같은 부모 ID)
-        if (
-          existCategoryTitle.parentCategoryId ===
-          createCategory.parentCategoryId
-        ) {
-          const errorMsg = createCategory.parentCategoryId
-            ? '같은 이름의 서브 카테고리가 이미 존재합니다.'
-            : '같은 이름의 메인 카테고리가 이미 존재합니다.';
+      if (existCategoryTitle && !existCategoryTitle?.parentCategoryId) {
+        return {
+          ok: false,
+          error: '같은 이름의 메인 카테고리가 존재합니다.',
+        };
+      }
 
-          return {
-            ok: false,
-            error: errorMsg,
-          };
-        }
+      if (
+        existCategoryTitle &&
+        existCategoryTitle?.parentCategoryId ===
+          createCategory?.parentCategoryId
+      ) {
+        return {
+          ok: false,
+          error: '같은 이름의 서브 카테고리가 존재합니다.',
+        };
       }
 
       // 2. 부모 카테고리 존재 여부 체크 (부모 ID가 있는 경우만)
