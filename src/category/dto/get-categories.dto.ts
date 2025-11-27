@@ -7,8 +7,8 @@ export class CategoryCount extends Category {
   @Field(() => [CategoryCount], { nullable: true })
   children?: CategoryCount[];
 
-  @Field(() => Int)
-  count: number;
+  @Field(() => Int, { nullable: true })
+  count?: number;
 }
 
 @ObjectType()
