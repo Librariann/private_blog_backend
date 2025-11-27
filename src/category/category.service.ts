@@ -1,5 +1,5 @@
 import { Injectable } from '@nestjs/common';
-import { Repository } from 'typeorm';
+import { IsNull, Repository } from 'typeorm';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Category } from './entity/category.entity';
 import {
@@ -65,9 +65,9 @@ export class CategoryService {
 
       // 3. 같은 부모 하위의 카테고리 개수 조회 (sortOrder 계산용)
       const categoryParentCheck = await this.category.find({
-        where: {
-          parentCategoryId: createCategory?.parentCategoryId || null,
-        },
+        where: createCategory?.parentCategoryId
+          ? { parentCategoryId: createCategory.parentCategoryId }
+          : { parentCategoryId: IsNull() },
       });
 
       const newCategory = this.category.create(createCategory);
@@ -218,6 +218,7 @@ export class CategoryService {
       .leftJoinAndSelect('category.post', 'post', 'post.postStatus = :status', {
         status: PostStatus.PUBLISHED,
       })
+      .addOrderBy('category.sortOrder', 'ASC')
       .getMany();
 
     if (getCategories.length > 0) {
