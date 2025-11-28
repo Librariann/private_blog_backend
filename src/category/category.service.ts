@@ -14,7 +14,6 @@ import {
   GetCategoryByIdOutput,
   GetParentCategoriesOutput,
 } from './dto/get-categories.dto';
-import { PostStatus } from 'src/post/entity/post.entity';
 
 @Injectable()
 export class CategoryService {
@@ -32,7 +31,7 @@ export class CategoryService {
         where: { categoryTitle: createCategory.categoryTitle },
       });
 
-      if (existCategoryTitle && !existCategoryTitle?.parentCategory.id) {
+      if (existCategoryTitle && !existCategoryTitle?.id) {
         return {
           ok: false,
           error: '같은 이름의 메인 카테고리가 존재합니다.',
@@ -41,8 +40,7 @@ export class CategoryService {
 
       if (
         existCategoryTitle &&
-        existCategoryTitle?.parentCategory?.id ===
-          createCategory?.parentCategoryId
+        existCategoryTitle?.id === createCategory?.parentCategoryId
       ) {
         return {
           ok: false,
