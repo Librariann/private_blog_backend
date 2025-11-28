@@ -10,7 +10,6 @@ import { JwtService } from 'src/jwt/jwt.service';
 import { logger } from 'src/logger/winston';
 import { UpdatePasswordOutput } from './dto/update-password.dto';
 import { User } from 'src/user/entity/user.entity';
-import { PostStatus } from 'src/post/entity/post.entity';
 import {
   UpdateUserProfileInput,
   UpdateUserProfileOutput,

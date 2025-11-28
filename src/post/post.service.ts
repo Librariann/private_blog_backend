@@ -231,7 +231,6 @@ export class PostService {
 
   async getPostList(): Promise<GetPostListOutput> {
     try {
-      const map = new Map();
       const posts = await this.post.find({
         relations: ['category', 'hashtags', 'comments'],
         order: {
@@ -240,26 +239,6 @@ export class PostService {
         where: {
           postStatus: PostStatus.PUBLISHED,
         },
-      });
-
-      const getParentCategory = await this.category.find();
-      const filterParentCategory = getParentCategory.filter(
-        (category) => category.parentCategoryId === null,
-      );
-
-      posts?.forEach((post) => {
-        map.set(post.id, {
-          ...post,
-        });
-      });
-
-      posts?.forEach((post) => {
-        const getPost = map.get(post.id);
-        filterParentCategory.find((category) => {
-          if (category.id === getPost.category.parentCategoryId) {
-            getPost.category.parentCategoryTitle = category.categoryTitle;
-          }
-        });
       });
 
       return {
@@ -327,19 +306,13 @@ export class PostService {
           error: '게시물이 존재하지 않습니다.',
         };
       }
-      const getParentCategory = await this.category.findOneByOrFail({
-        id: posts[0].category.parentCategoryId,
-      });
-
-      posts?.forEach((post) => {
-        post.category.parentCategoryTitle = getParentCategory.categoryTitle;
-      });
 
       return {
         ok: true,
         posts,
       };
     } catch (e) {
+      console.error(e);
       return {
         ok: false,
         error: `관리자에게 문의해주세요 ${e}`,
@@ -347,14 +320,16 @@ export class PostService {
     }
   }
 
-  async getPostListByParentCategoryId(
+  async getPostsByParentCategoryId(
     categoryId: number,
   ): Promise<getPostListByCategoryIdOutput> {
     try {
       const posts = await this.post.find({
         where: {
           category: {
-            parentCategoryId: categoryId,
+            parentCategory: {
+              id: categoryId,
+            },
           },
           postStatus: PostStatus.PUBLISHED,
         },
@@ -376,7 +351,8 @@ export class PostService {
       });
 
       posts?.forEach((post) => {
-        post.category.parentCategoryTitle = getParentCategory.categoryTitle;
+        post.category.parentCategory.categoryTitle =
+          getParentCategory.categoryTitle;
       });
 
       return {
@@ -393,32 +369,17 @@ export class PostService {
 
   async getAllPostList(): Promise<GetPostListOutput> {
     try {
-      const map = new Map();
       const posts = await this.post.find({
-        relations: ['category', 'hashtags', 'comments'],
+        relations: [
+          'category',
+          'category.parentCategory',
+          'category.parentCategory.subCategories',
+          'hashtags',
+          'comments',
+        ],
         order: {
           createdAt: 'DESC',
         },
-      });
-
-      const getParentCategory = await this.category.find();
-      const filterParentCategory = getParentCategory.filter(
-        (category) => category.parentCategoryId === null,
-      );
-
-      posts?.forEach((post) => {
-        map.set(post.id, {
-          ...post,
-        });
-      });
-
-      posts?.forEach((post) => {
-        const getPost = map.get(post.id);
-        filterParentCategory.find((category) => {
-          if (category.id === getPost.category.parentCategoryId) {
-            getPost.category.parentCategoryTitle = category.categoryTitle;
-          }
-        });
       });
 
       return {

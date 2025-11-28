@@ -11,6 +11,7 @@ import { EditCategoryInput, EditCategoryOutput } from './dto/edit-category.dto';
 import {
   GetCategoriesCountOutput,
   GetCategoriesOutput,
+  GetCategoryByIdOutput,
   GetParentCategoriesOutput,
 } from './dto/get-categories.dto';
 import { PostStatus } from 'src/post/entity/post.entity';
@@ -31,7 +32,7 @@ export class CategoryService {
         where: { categoryTitle: createCategory.categoryTitle },
       });
 
-      if (existCategoryTitle && !existCategoryTitle?.parentCategoryId) {
+      if (existCategoryTitle && !existCategoryTitle?.parentCategory.id) {
         return {
           ok: false,
           error: '같은 이름의 메인 카테고리가 존재합니다.',
@@ -40,7 +41,7 @@ export class CategoryService {
 
       if (
         existCategoryTitle &&
-        existCategoryTitle?.parentCategoryId ===
+        existCategoryTitle?.parentCategory?.id ===
           createCategory?.parentCategoryId
       ) {
         return {
@@ -66,12 +67,11 @@ export class CategoryService {
       // 3. 같은 부모 하위의 카테고리 개수 조회 (sortOrder 계산용)
       const categoryParentCheck = await this.category.find({
         where: createCategory?.parentCategoryId
-          ? { parentCategoryId: createCategory.parentCategoryId }
-          : { parentCategoryId: IsNull() },
+          ? { parentCategory: { id: createCategory.parentCategoryId } }
+          : { parentCategory: IsNull() },
       });
 
       const newCategory = this.category.create(createCategory);
-
       if (categoryParentCheck.length > 0) {
         newCategory.sortOrder = categoryParentCheck.length + 1;
       } else {
@@ -79,7 +79,10 @@ export class CategoryService {
       }
 
       if (createCategory?.parentCategoryId) {
-        newCategory.parentCategoryId = createCategory.parentCategoryId;
+        const parentCategory = await this.category.findOne({
+          where: { id: createCategory.parentCategoryId },
+        });
+        newCategory.parentCategory = parentCategory;
       }
 
       await this.category.save(newCategory);
@@ -103,7 +106,7 @@ export class CategoryService {
     try {
       const category = await this.findOneCategoryById(editCategory.id);
 
-      if (!category) {
+      if (!category.category) {
         return {
           ok: false,
           error: '카테고리가 존재하지 않습니다.',
@@ -164,36 +167,18 @@ export class CategoryService {
 
   async getCategories(): Promise<GetCategoriesOutput> {
     try {
-      const result = [];
-      const map = new Map();
       const getCategories = await this.category.find({
+        relations: ['subCategories', 'parentCategory'],
+        where: { parentCategory: IsNull() },
         order: { sortOrder: 'ASC' },
-      });
-
-      getCategories?.forEach((category) => {
-        map.set(category.id, {
-          ...category,
-          subCategories: [],
-        });
-      });
-
-      getCategories?.forEach((category) => {
-        const node = map.get(category.id);
-        if (category.parentCategoryId) {
-          const parent = map.get(category.parentCategoryId);
-          if (parent) {
-            parent.subCategories.push(node);
-          }
-        } else {
-          result.push(node);
-        }
       });
 
       return {
         ok: true,
-        categories: result,
+        categories: getCategories,
       };
     } catch (e) {
+      console.log(e);
       return {
         ok: false,
         error: '카테고리를 가져 올 수 없습니다. 관리자에게 문의해 주세요.',
@@ -201,58 +186,37 @@ export class CategoryService {
     }
   }
 
-  async findOneCategoryById(categoryId: number): Promise<Category> {
+  async findOneCategoryById(
+    categoryId: number,
+  ): Promise<GetCategoryByIdOutput> {
     const category = await this.category.findOne({
       where: { id: categoryId },
     });
 
-    return category;
+    return {
+      ok: true,
+      category,
+    };
   }
 
   async getCategoryCounts(): Promise<GetCategoriesCountOutput> {
-    const categoryCounts = [];
-    const map = new Map();
-
-    const getCategories = await this.category
-      .createQueryBuilder('category')
-      .leftJoinAndSelect('category.post', 'post', 'post.postStatus = :status', {
-        status: PostStatus.PUBLISHED,
-      })
-      .addOrderBy('category.sortOrder', 'ASC')
-      .getMany();
-
-    if (getCategories.length > 0) {
-      getCategories?.forEach((category) => {
-        map.set(category.id, {
-          ...category,
-          count: category.post?.length || 0,
-          children: [],
-        });
-      });
-    }
-
-    getCategories?.forEach((category) => {
-      const node = map.get(category.id);
-      if (category.parentCategoryId) {
-        const parent = map.get(category.parentCategoryId);
-        if (parent) {
-          parent.children.push(node);
-          parent.count += node.count;
-        }
-      } else {
-        categoryCounts.push(node);
-      }
+    const getCategories = await this.category.find({
+      relations: ['subCategories', 'parentCategory'],
+      where: {
+        parentCategory: IsNull(),
+        // post: { postStatus: PostStatus.PUBLISHED },
+      },
+      order: { sortOrder: 'ASC' },
     });
-
     return {
       ok: true,
-      categoryCounts,
+      categoryCounts: getCategories,
     };
   }
 
   async getParentCategories(): Promise<GetParentCategoriesOutput> {
     const getParentCategories = await this.category.find({
-      where: { parentCategoryId: null },
+      where: { parentCategory: IsNull() },
       order: { sortOrder: 'DESC' },
     });
 

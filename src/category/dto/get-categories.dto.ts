@@ -4,9 +4,6 @@ import { Category } from '../entity/category.entity';
 
 @ObjectType()
 export class CategoryCount extends Category {
-  @Field(() => [CategoryCount], { nullable: true })
-  children?: CategoryCount[];
-
   @Field(() => Int, { nullable: true })
   count?: number;
 }
@@ -15,6 +12,12 @@ export class CategoryCount extends Category {
 export class GetCategoriesOutput extends Output {
   @Field(() => [Category], { nullable: true })
   categories?: Category[];
+}
+
+@ObjectType()
+export class GetCategoryByIdOutput extends Output {
+  @Field(() => Category, { nullable: true })
+  category?: Category;
 }
 
 @ObjectType()

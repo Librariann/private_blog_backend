@@ -81,10 +81,10 @@ export class PostResolver {
 
   @Query(() => getPostListByCategoryIdOutput, { nullable: true })
   @Public()
-  getPostListByParentCategoryId(
+  getPostsByParentCategoryId(
     @Args('categoryId', { type: () => Int }) categoryId: number,
   ): Promise<getPostListByCategoryIdOutput> {
-    return this.postService.getPostListByParentCategoryId(categoryId);
+    return this.postService.getPostsByParentCategoryId(categoryId);
   }
 
   @Query(() => GetPostListOutput)

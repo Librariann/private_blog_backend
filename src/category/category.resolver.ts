@@ -10,6 +10,7 @@ import { EditCategoryInput, EditCategoryOutput } from './dto/edit-category.dto';
 import {
   GetCategoriesCountOutput,
   GetCategoriesOutput,
+  GetCategoryByIdOutput,
 } from './dto/get-categories.dto';
 import { Public } from 'src/auth/public.decorator';
 
@@ -42,6 +43,14 @@ export class CategoryResolver {
   @Public()
   getCategories(): Promise<GetCategoriesOutput> {
     return this.categoryService.getCategories();
+  }
+
+  @Query(() => GetCategoryByIdOutput)
+  @Public()
+  findOneCategoryById(
+    @Args('categoryId', { type: () => Int }) categoryId: number,
+  ): Promise<GetCategoryByIdOutput> {
+    return this.categoryService.findOneCategoryById(categoryId);
   }
 
   @Query(() => GetCategoriesCountOutput)

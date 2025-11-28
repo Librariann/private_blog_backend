@@ -44,8 +44,10 @@ export class Post extends CoreEntity {
   @IsInt()
   hits: number;
 
-  @Field(() => Category)
-  @ManyToOne(() => Category, (Category) => Category.post)
+  @ManyToOne(() => Category, (Category) => Category.post, {
+    onDelete: 'SET NULL',
+  })
+  @Field(() => Category, { nullable: true })
   category: Category;
 
   @RelationId((post: Post) => post.category)

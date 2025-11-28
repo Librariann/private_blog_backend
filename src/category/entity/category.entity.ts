@@ -1,5 +1,5 @@
 import { CoreEntity } from 'src/common/entity/core.entity';
-import { Entity, Column, OneToMany } from 'typeorm';
+import { Entity, Column, OneToMany, ManyToOne, JoinColumn } from 'typeorm';
 import { Field, ObjectType, InputType } from '@nestjs/graphql';
 import { IsNumber, IsString } from 'class-validator';
 import { Post } from 'src/post/entity/post.entity';
@@ -13,21 +13,17 @@ export class Category extends CoreEntity {
   @IsString()
   categoryTitle: string;
 
-  @Column({ nullable: true })
-  @Field(() => Number, { nullable: true })
-  @IsNumber()
-  depth?: number;
+  @ManyToOne(() => Category, (category) => category.subCategories, {
+    nullable: true,
+    onDelete: 'SET NULL',
+  })
+  @JoinColumn({ name: 'parentCategoryId' })
+  @Field(() => Category, { nullable: true })
+  parentCategory?: Category;
 
-  @Column({ nullable: true })
-  @Field(() => Number, { nullable: true })
-  @IsNumber()
-  parentCategoryId?: number;
-
-  @Column({ nullable: true })
-  @Field(() => String, { nullable: true })
-  @IsString()
-  parentCategoryTitle?: string;
-
+  @OneToMany(() => Category, (category) => category.parentCategory, {
+    onDelete: 'SET NULL',
+  })
   @Field(() => [Category], { nullable: true })
   subCategories?: Category[];
 
@@ -50,5 +46,6 @@ export class Category extends CoreEntity {
     onDelete: 'SET NULL',
     eager: true,
   })
+  @Field(() => [Post], { nullable: true })
   post: Post[];
 }
