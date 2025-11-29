@@ -1,5 +1,5 @@
 import { Injectable } from '@nestjs/common';
-import { IsNull, Repository } from 'typeorm';
+import { IsNull, ILike, Repository } from 'typeorm';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Category } from './entity/category.entity';
 import {
@@ -26,47 +26,52 @@ export class CategoryService {
     createCategory: CreateCategoryInput,
   ): Promise<CreateCategoryOutput> {
     try {
+      const isParent: boolean = Boolean(createCategory.parentCategoryId);
+
+      //상위 카테고리 작성 - 부모카테고리 아이디가 없을때
+
       // 1. 카테고리 이름 중복 체크
-      const existCategoryTitle = await this.category.findOne({
-        where: { categoryTitle: createCategory.categoryTitle },
+      const existCategory = await this.category.findOne({
+        where: {
+          parentCategory: isParent
+            ? { id: createCategory?.parentCategoryId } //부모카테고리가 있을때
+            : IsNull(), //부모카테고리가 없을때
+          categoryTitle: ILike(createCategory.categoryTitle),
+        },
+        relations: ['parentCategory'],
       });
 
-      if (existCategoryTitle && !existCategoryTitle?.id) {
+      if (
+        !isParent &&
+        existCategory &&
+        createCategory?.categoryTitle?.toLowerCase() ===
+          existCategory?.categoryTitle?.toLowerCase()
+      ) {
         return {
           ok: false,
-          error: '같은 이름의 메인 카테고리가 존재합니다.',
+          error: '같은 이름의 상위 카테고리가 존재합니다.',
         };
       }
 
       if (
-        existCategoryTitle &&
-        existCategoryTitle?.id === createCategory?.parentCategoryId
+        isParent &&
+        existCategory &&
+        createCategory?.categoryTitle?.toLowerCase() ===
+          existCategory?.categoryTitle?.toLowerCase()
       ) {
         return {
           ok: false,
-          error: '같은 이름의 서브 카테고리가 존재합니다.',
+          error: '같은 이름의 하위 카테고리가 존재합니다.',
         };
       }
 
-      // 2. 부모 카테고리 존재 여부 체크 (부모 ID가 있는 경우만)
-      if (createCategory?.parentCategoryId) {
-        const existParentCategory = await this.category.findOne({
-          where: { id: createCategory.parentCategoryId },
-        });
-
-        if (!existParentCategory) {
-          return {
-            ok: false,
-            error: '부모 카테고리가 존재하지 않습니다.',
-          };
-        }
-      }
-
-      // 3. 같은 부모 하위의 카테고리 개수 조회 (sortOrder 계산용)
+      // 2. 같은 부모 하위의 카테고리 개수 조회 (sortOrder 계산용)
       const categoryParentCheck = await this.category.find({
-        where: createCategory?.parentCategoryId
-          ? { parentCategory: { id: createCategory.parentCategoryId } }
-          : { parentCategory: IsNull() },
+        where: {
+          parentCategory: createCategory?.parentCategoryId
+            ? { id: createCategory.parentCategoryId }
+            : IsNull(),
+        },
       });
 
       const newCategory = this.category.create(createCategory);
