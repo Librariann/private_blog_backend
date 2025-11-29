@@ -173,10 +173,7 @@ export class CategoryService {
     }
   }
 
-  async deleteCategory(
-    categoryId: number,
-    isParent: boolean,
-  ): Promise<DeleteCategoryOutput> {
+  async deleteCategory(categoryId: number): Promise<DeleteCategoryOutput> {
     try {
       const existCategory = await this.category.findOne({
         where: { id: categoryId },
@@ -187,11 +184,6 @@ export class CategoryService {
           ok: false,
           error: '카테고리가 존재 하지 않습니다 다시한번 확인해주세요.',
         };
-      }
-      if (isParent) {
-        await this.category.delete({
-          parentCategory: { id: categoryId },
-        });
       }
 
       await this.category.delete({
@@ -217,10 +209,13 @@ export class CategoryService {
         relations: ['subCategories', 'parentCategory'],
         where: {
           parentCategory: IsNull(),
-          post: { postStatus: PostStatus.PUBLISHED },
+          subCategories: {
+            post: { postStatus: PostStatus.PUBLISHED },
+          },
         },
         order: { sortOrder: 'ASC' },
       });
+      console.log(getCategories);
 
       return {
         ok: true,

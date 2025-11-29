@@ -35,9 +35,8 @@ export class CategoryResolver {
   @Mutation(() => DeleteCategoryOutput)
   deleteCategory(
     @Args('categoryId', { type: () => Int }) categoryId: number,
-    @Args('isParent', { type: () => Boolean }) isParent: boolean,
   ): Promise<DeleteCategoryOutput> {
-    return this.categoryService.deleteCategory(categoryId, isParent);
+    return this.categoryService.deleteCategory(categoryId);
   }
 
   @Query(() => GetCategoriesOutput)

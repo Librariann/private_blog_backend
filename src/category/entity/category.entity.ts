@@ -15,14 +15,14 @@ export class Category extends CoreEntity {
 
   @ManyToOne(() => Category, (category) => category.subCategories, {
     nullable: true,
-    onDelete: 'SET NULL',
+    onDelete: 'CASCADE',
   })
   @JoinColumn({ name: 'parentCategoryId' })
   @Field(() => Category, { nullable: true })
   parentCategory?: Category;
 
   @OneToMany(() => Category, (category) => category.parentCategory, {
-    onDelete: 'SET NULL',
+    onDelete: 'CASCADE',
   })
   @Field(() => [Category], { nullable: true })
   subCategories?: Category[];
