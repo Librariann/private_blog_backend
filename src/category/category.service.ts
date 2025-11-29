@@ -14,6 +14,7 @@ import {
   GetCategoryByIdOutput,
   GetParentCategoriesOutput,
 } from './dto/get-categories.dto';
+import { PostStatus } from 'src/post/entity/post.entity';
 
 @Injectable()
 export class CategoryService {
@@ -214,7 +215,10 @@ export class CategoryService {
     try {
       const getCategories = await this.category.find({
         relations: ['subCategories', 'parentCategory'],
-        where: { parentCategory: IsNull() },
+        where: {
+          parentCategory: IsNull(),
+          post: { postStatus: PostStatus.PUBLISHED },
+        },
         order: { sortOrder: 'ASC' },
       });
 

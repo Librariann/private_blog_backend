@@ -3,10 +3,10 @@ import { Output } from 'src/common/dto/output.dto';
 import { Category } from '../entity/category.entity';
 
 @InputType()
-export class EditCategoryInput extends PickType(Category, [
-  'id',
-  'categoryTitle',
-]) {
+export class EditCategoryInput extends PickType(Category, ['id']) {
+  @Field(() => String, { nullable: true })
+  categoryTitle?: string;
+
   @Field(() => Int, { nullable: true })
   depth?: number;
 
