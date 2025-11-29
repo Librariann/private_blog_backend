@@ -205,17 +205,19 @@ export class CategoryService {
 
   async getCategories(): Promise<GetCategoriesOutput> {
     try {
-      const getCategories = await this.category.find({
-        relations: ['subCategories', 'parentCategory'],
-        where: {
-          parentCategory: IsNull(),
-          subCategories: {
-            post: { postStatus: PostStatus.PUBLISHED },
-          },
-        },
-        order: { sortOrder: 'ASC' },
-      });
-      console.log(getCategories);
+      const getCategories = await this.category
+        .createQueryBuilder('category')
+        .leftJoinAndSelect('category.subCategories', 'subCategories')
+        .leftJoinAndSelect('category.parentCategory', 'parentCategory')
+        .leftJoinAndSelect(
+          'subCategories.post',
+          'post',
+          'post.postStatus = :status',
+          { status: PostStatus.PUBLISHED },
+        )
+        .where('category.parentCategory IS NULL')
+        .orderBy('category.sortOrder', 'ASC')
+        .getMany();
 
       return {
         ok: true,
