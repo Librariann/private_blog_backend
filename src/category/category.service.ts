@@ -26,7 +26,7 @@ export class CategoryService {
     createCategory: CreateCategoryInput,
   ): Promise<CreateCategoryOutput> {
     try {
-      const isParent: boolean = Boolean(createCategory.parentCategoryId);
+      const isParent: boolean = Boolean(!createCategory.parentCategoryId);
 
       //상위 카테고리 작성 - 부모카테고리 아이디가 없을때
 
@@ -42,7 +42,7 @@ export class CategoryService {
       });
 
       if (
-        !isParent &&
+        isParent &&
         existCategory &&
         createCategory?.categoryTitle?.toLowerCase() ===
           existCategory?.categoryTitle?.toLowerCase()
@@ -54,7 +54,7 @@ export class CategoryService {
       }
 
       if (
-        isParent &&
+        !isParent &&
         existCategory &&
         createCategory?.categoryTitle?.toLowerCase() ===
           existCategory?.categoryTitle?.toLowerCase()
@@ -107,12 +107,37 @@ export class CategoryService {
     editCategory: EditCategoryInput,
   ): Promise<EditCategoryOutput> {
     try {
-      const category = await this.findOneCategoryById(editCategory.id);
+      const existCategory = await this.category.findOne({
+        where: {
+          parentCategory: editCategory.isParent
+            ? { id: editCategory?.parentCategoryId } //부모카테고리가 있을때
+            : IsNull(), //부모카테고리가 없을때
+          categoryTitle: ILike(editCategory.categoryTitle),
+        },
+      });
+      console.log(editCategory, existCategory);
 
-      if (!category.category) {
+      if (
+        editCategory.isParent &&
+        existCategory &&
+        editCategory?.categoryTitle?.toLowerCase() ===
+          existCategory?.categoryTitle?.toLowerCase()
+      ) {
         return {
           ok: false,
-          error: '카테고리가 존재하지 않습니다.',
+          error: '같은 이름의 상위 카테고리가 존재합니다.',
+        };
+      }
+
+      if (
+        !editCategory.isParent &&
+        existCategory &&
+        editCategory?.categoryTitle?.toLowerCase() ===
+          existCategory?.categoryTitle?.toLowerCase()
+      ) {
+        return {
+          ok: false,
+          error: '같은 이름의 하위 카테고리가 존재합니다.',
         };
       }
 
@@ -138,7 +163,10 @@ export class CategoryService {
     }
   }
 
-  async deleteCategory(categoryId: number): Promise<DeleteCategoryOutput> {
+  async deleteCategory(
+    categoryId: number,
+    isParent: boolean,
+  ): Promise<DeleteCategoryOutput> {
     try {
       const existCategory = await this.category.findOne({
         where: { id: categoryId },
@@ -149,6 +177,11 @@ export class CategoryService {
           ok: false,
           error: '카테고리가 존재 하지 않습니다 다시한번 확인해주세요.',
         };
+      }
+      if (isParent) {
+        await this.category.delete({
+          parentCategory: { id: categoryId },
+        });
       }
 
       await this.category.delete({

@@ -21,6 +21,9 @@ export class EditCategoryInput extends PickType(Category, [
 
   @Field(() => String, { nullable: true })
   iconColor?: string;
+
+  @Field(() => Boolean, { nullable: true })
+  isParent?: boolean;
 }
 
 @ObjectType()
