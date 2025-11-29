@@ -34,8 +34,8 @@ export class CategoryService {
       const existCategory = await this.category.findOne({
         where: {
           parentCategory: isParent
-            ? { id: createCategory?.parentCategoryId } //부모카테고리가 있을때
-            : IsNull(), //부모카테고리가 없을때
+            ? IsNull() //상위 카테고리 일때
+            : { id: createCategory?.parentCategoryId }, //하위 카테고리일때
           categoryTitle: ILike(createCategory.categoryTitle),
         },
         relations: ['parentCategory'],
@@ -107,18 +107,27 @@ export class CategoryService {
     editCategory: EditCategoryInput,
   ): Promise<EditCategoryOutput> {
     try {
+      const existParentCategory = await this.category.findOne({
+        where: {
+          id: editCategory.id,
+        },
+        relations: ['parentCategory'],
+      });
+
+      const isParent = Boolean(!existParentCategory?.parentCategory); //상위인지, 하위인지 확인 ParentCategory가 없으면 상위
+
       const existCategory = await this.category.findOne({
         where: {
-          parentCategory: editCategory.isParent
-            ? { id: editCategory?.parentCategoryId } //부모카테고리가 있을때
-            : IsNull(), //부모카테고리가 없을때
+          parentCategory: isParent
+            ? IsNull() //부모카테고리 일때
+            : { id: existParentCategory?.parentCategory?.id }, //부모카테고리 아닐때
           categoryTitle: ILike(editCategory.categoryTitle),
         },
+        relations: ['parentCategory'],
       });
-      console.log(editCategory, existCategory);
 
       if (
-        editCategory.isParent &&
+        isParent &&
         existCategory &&
         editCategory?.categoryTitle?.toLowerCase() ===
           existCategory?.categoryTitle?.toLowerCase()
@@ -130,7 +139,7 @@ export class CategoryService {
       }
 
       if (
-        !editCategory.isParent &&
+        !isParent &&
         existCategory &&
         editCategory?.categoryTitle?.toLowerCase() ===
           existCategory?.categoryTitle?.toLowerCase()
