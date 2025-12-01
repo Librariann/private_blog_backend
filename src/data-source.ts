@@ -11,6 +11,8 @@ dotenv.config({
   path: process.env.NODE_ENV === 'prod' ? '.env.prod' : '.env.dev',
 });
 
+const isProd = process.env.NODE_ENV === 'prod';
+
 export const AppDataSource = new DataSource({
   type: 'postgres',
   host: process.env.DB_HOST || 'localhost',
@@ -19,6 +21,6 @@ export const AppDataSource = new DataSource({
   password: process.env.DB_PASSWORD || 'password',
   database: process.env.DB_NAME || 'private_blog',
   entities: [User, Post, Comment, Category, Hashtag],
-  migrations: ['src/migrations/*.ts'],
+  migrations: [isProd ? 'dist/migrations/*.js' : 'src/migrations/*.ts'],
   synchronize: false,
 });
