@@ -53,7 +53,7 @@ const TOKEN_KEY = 'x-jwt';
       password: process.env.DB_PASSWORD,
       database: process.env.DB_NAME,
       entities: [User, Post, Comment, Category, Hashtag],
-      synchronize: process.env.NODE_ENV === 'dev',
+      synchronize: false,
     }),
     JwtModule.forRoot({ privateKey: process.env.SECRET_KEY }),
     UserModule,

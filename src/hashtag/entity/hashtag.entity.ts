@@ -1,7 +1,7 @@
 import { Field, InputType, ObjectType } from '@nestjs/graphql';
 import { IsNumber, IsString } from 'class-validator';
-import { CoreEntity } from 'src/common/entity/core.entity';
-import { Post } from 'src/post/entity/post.entity';
+import { CoreEntity } from '../../common/entity/core.entity';
+import { Post } from '../../post/entity/post.entity';
 import { Column, Entity, ManyToOne } from 'typeorm';
 
 @InputType('HashtagInputType', { isAbstract: true })

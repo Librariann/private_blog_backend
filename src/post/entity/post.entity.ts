@@ -1,4 +1,4 @@
-import { CoreEntity } from 'src/common/entity/core.entity';
+import { CoreEntity } from '../../common/entity/core.entity';
 import { Entity, Column, ManyToOne, OneToMany, RelationId } from 'typeorm';
 import {
   Field,
@@ -8,10 +8,10 @@ import {
   registerEnumType,
 } from '@nestjs/graphql';
 import { IsInt, IsNumber, IsString } from 'class-validator';
-import { Comment } from 'src/comment/entity/comment.entity';
-import { User } from 'src/user/entity/user.entity';
-import { Category } from 'src/category/entity/category.entity';
-import { Hashtag } from 'src/hashtag/entity/hashtag.entity';
+import { Comment } from '../../comment/entity/comment.entity';
+import { User } from '../../user/entity/user.entity';
+import { Category } from '../../category/entity/category.entity';
+import { Hashtag } from '../../hashtag/entity/hashtag.entity';
 
 export enum PostStatus {
   DRAFT = 'DRAFT', // 임시저장

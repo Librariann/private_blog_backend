@@ -5,8 +5,8 @@ import { Output } from 'src/common/dto/output.dto';
 @InputType()
 export class CreateCommentInput extends PickType(Comment, [
   'comment',
-  'commentId',
-  'commentPassword',
+  'annonymousId',
+  'annonymousPassword',
 ]) {
   @Field(() => Int)
   postId: number;

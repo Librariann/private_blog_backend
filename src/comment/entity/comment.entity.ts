@@ -1,9 +1,8 @@
-import { CoreEntity } from 'src/common/entity/core.entity';
+import { CoreEntity } from '../../common/entity/core.entity';
 import { Entity, Column, ManyToOne, BeforeInsert, BeforeUpdate } from 'typeorm';
 import { Field, ObjectType, InputType } from '@nestjs/graphql';
 import { IsString } from 'class-validator';
-import { User } from 'src/user/entity/user.entity';
-import { Post } from 'src/post/entity/post.entity';
+import { Post } from '../../post/entity/post.entity';
 import * as bcrypt from 'bcryptjs';
 import { InternalServerErrorException } from '@nestjs/common';
 
@@ -11,12 +10,13 @@ import { InternalServerErrorException } from '@nestjs/common';
 @ObjectType()
 @Entity({ schema: 'private_blog' })
 export class Comment extends CoreEntity {
+  //추후 유저인증시 추가
   // @Field(() => User)
-  @ManyToOne(() => User, (user) => user.comments, {
-    onDelete: 'SET NULL',
-    eager: true,
-  })
-  user: User;
+  // @ManyToOne(() => User, (user) => user.comments, {
+  //   onDelete: 'SET NULL',
+  //   eager: true,
+  // })
+  // user: User;
 
   @ManyToOne(() => Post, (post) => post.comments, {
     onDelete: 'SET NULL',
@@ -29,22 +29,25 @@ export class Comment extends CoreEntity {
   @IsString()
   comment: string;
 
-  @Column({ nullable: false })
+  @Column({ nullable: true })
   @Field(() => String)
   @IsString()
-  commentId: string;
+  annonymousId: string;
 
-  @Column({ nullable: false })
+  @Column({ nullable: true })
   @Field(() => String)
   @IsString()
-  commentPassword: string;
+  annonymousPassword: string;
 
   @BeforeInsert()
   @BeforeUpdate()
   async hashPassword(): Promise<void> {
-    if (this.commentPassword) {
+    if (this.annonymousPassword) {
       try {
-        this.commentPassword = await bcrypt.hash(this.commentPassword, 10);
+        this.annonymousPassword = await bcrypt.hash(
+          this.annonymousPassword,
+          10,
+        );
       } catch (e) {
         throw new InternalServerErrorException();
       }
@@ -53,7 +56,7 @@ export class Comment extends CoreEntity {
 
   async checkPassword(aPassword: string): Promise<boolean> {
     try {
-      return await bcrypt.compare(aPassword, this.commentPassword);
+      return await bcrypt.compare(aPassword, this.annonymousPassword);
     } catch (e) {
       throw new InternalServerErrorException();
     }

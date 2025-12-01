@@ -1,8 +1,8 @@
-import { CoreEntity } from 'src/common/entity/core.entity';
+import { CoreEntity } from '../../common/entity/core.entity';
 import { Entity, Column, OneToMany, ManyToOne, JoinColumn } from 'typeorm';
 import { Field, ObjectType, InputType } from '@nestjs/graphql';
 import { IsNumber, IsString } from 'class-validator';
-import { Post } from 'src/post/entity/post.entity';
+import { Post } from '../../post/entity/post.entity';
 
 @InputType('CategoryInputType', { isAbstract: true })
 @ObjectType()

@@ -7,4 +7,7 @@ export class Output {
 
   @Field(() => String, { nullable: true })
   error?: string;
+
+  @Field(() => String)
+  message?: string;
 }

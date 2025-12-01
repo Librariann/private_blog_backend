@@ -38,12 +38,7 @@ export class PostService {
       const getCategory = await this.category.findOneByOrFail({
         id: createPostInput.categoryId,
       });
-      if (!getCategory) {
-        return {
-          ok: false,
-          error: '카테고리가 없습니다 다시한번 확인해주세요.',
-        };
-      }
+
       const newPost = this.post.create(createPostInput);
       newPost.user = user;
       newPost.category = getCategory;
@@ -99,12 +94,6 @@ export class PostService {
         id: updatePost.categoryId,
       });
 
-      if (!getCategory) {
-        return {
-          ok: false,
-          error: '카테고리가 없습니다 다시한번 확인해주세요.',
-        };
-      }
       const createEditPost = this.post.create(updatePost);
       createEditPost.category = getCategory;
 
@@ -132,16 +121,9 @@ export class PostService {
 
   async deletePost(postId: number): Promise<DeletePostOutput> {
     try {
-      const postExistCheck = await this.post.findOneByOrFail({
+      await this.post.findOneByOrFail({
         id: postId,
       });
-
-      if (!postExistCheck) {
-        return {
-          ok: false,
-          error: '해당 게시글이 없습니다.',
-        };
-      }
 
       await this.post.update(
         {
@@ -169,13 +151,6 @@ export class PostService {
       const postExistCheck = await this.post.findOneByOrFail({
         id: postId,
       });
-
-      if (!postExistCheck) {
-        return {
-          ok: false,
-          error: '해당 게시글이 없습니다.',
-        };
-      }
 
       let postStatus = postExistCheck.postStatus;
       if (postStatus !== PostStatus.PUBLISHED) {

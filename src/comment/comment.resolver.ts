@@ -40,8 +40,7 @@ export class CommentResolver {
   }
 
   @Query(() => GetCommentOutput)
-  @Public()
-  getCommentList(@Args('postId', { type: () => Int }) postId: number) {
-    return this.commentService.getComments(postId);
+  getComments() {
+    return this.commentService.getComments();
   }
 }

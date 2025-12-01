@@ -6,7 +6,6 @@ import {
 import { InjectRepository } from '@nestjs/typeorm';
 import { Comment } from './entity/comment.entity';
 import { Repository } from 'typeorm';
-import { User } from 'src/user/entity/user.entity';
 import { Post } from 'src/post/entity/post.entity';
 import {
   DeleteCommentInput,
@@ -24,12 +23,10 @@ export class CommentService {
 
     @InjectRepository(Post)
     private readonly post: Repository<Post>,
-
-    private readonly postService: PostService,
   ) {}
   async createComment(
     // commentUser: User,
-    { postId, comment, commentId, commentPassword }: CreateCommentInput,
+    { postId, comment, annonymousId, annonymousPassword }: CreateCommentInput,
   ): Promise<CreateCommentOutput> {
     try {
       const existPost = await this.post.findOneOrFail({
@@ -46,8 +43,8 @@ export class CommentService {
       const newComment = this.comment.create({
         post: existPost,
         comment: comment,
-        commentId: commentId,
-        commentPassword: commentPassword,
+        annonymousId: annonymousId,
+        annonymousPassword: annonymousPassword,
         // user: commentUser,
       });
       await this.comment.save(newComment);
@@ -151,11 +148,9 @@ export class CommentService {
     }
   }
 
-  async getComments(postId: number): Promise<GetCommentOutput> {
+  async getComments(): Promise<GetCommentOutput> {
     try {
-      const {
-        post: { comments },
-      } = await this.postService.getPostFindOne(postId);
+      const comments = await this.comment.find();
 
       return {
         ok: true,
@@ -170,12 +165,12 @@ export class CommentService {
     }
   }
 
-  compareCommentUser(user: User, comment: Comment): boolean {
-    let allowed = true;
-    if (user.id !== comment.user.id) {
-      allowed = false;
-    }
+  // compareCommentUser(user: User, comment: Comment): boolean {
+  //   let allowed = true;
+  //   if (user.id !== comment.user.id) {
+  //     allowed = false;
+  //   }
 
-    return allowed;
-  }
+  //   return allowed;
+  // }
 }
