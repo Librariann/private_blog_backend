@@ -11,7 +11,7 @@
     "start": "cross-env NODE_ENV=prod nest start",
     "start:dev": "cross-env NODE_ENV=dev nest start --watch",
     "start:debug": "nest start --debug --watch",
-    "start:prod": "NODE_ENV=prod migration:run:prod && node dist/main",
+    "start:prod": "npm run migration:run:prod && node dist/main",
     "lint": "eslint \"{src,apps,libs,test}/**/*.ts\" --fix",
     "test": "jest",
     "test:watch": "jest --watch",
