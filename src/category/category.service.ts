@@ -114,14 +114,13 @@ export class CategoryService {
         },
         relations: ['parentCategory'],
       });
-
       const isParent = Boolean(!existParentCategory?.parentCategory); //상위인지, 하위인지 확인 ParentCategory가 없으면 상위
 
       const existCategory = await this.category.findOne({
         where: {
           parentCategory: isParent
-            ? IsNull() //부모카테고리 일때
-            : { id: existParentCategory?.parentCategory?.id }, //부모카테고리 아닐때
+            ? IsNull() //상위 카테고리 일때
+            : { id: existParentCategory?.parentCategory?.id }, //하위 카테고리 일때
           categoryTitle: ILike(editCategory.categoryTitle),
         },
         relations: ['parentCategory'],
@@ -151,12 +150,21 @@ export class CategoryService {
         };
       }
 
+      let editParentCategory = null;
+      if (editCategory?.parentCategoryId) {
+        const parentCategory = await this.category.findOne({
+          where: { id: editCategory.parentCategoryId },
+        });
+        editParentCategory = parentCategory;
+      }
+
       await this.category.save([
         {
           id: editCategory.id,
         },
         {
           ...editCategory,
+          ...(editParentCategory && { parentCategory: editParentCategory }),
         },
       ]);
 
@@ -208,6 +216,7 @@ export class CategoryService {
       const getCategories = await this.category
         .createQueryBuilder('category')
         .leftJoinAndSelect('category.subCategories', 'subCategories')
+        .leftJoinAndSelect('subCategories.parentCategory', 'subParentCategory')
         .leftJoinAndSelect('category.parentCategory', 'parentCategory')
         .leftJoinAndSelect(
           'subCategories.post',
