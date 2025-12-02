@@ -15,6 +15,7 @@ import {
   UpdateUserProfileOutput,
 } from './dto/update-user-profile.dto';
 import { Injectable } from '@nestjs/common';
+import { PostStatus } from 'src/post/entity/post.entity';
 
 @Injectable()
 export class UserService {
@@ -141,6 +142,9 @@ export class UserService {
       const userInfo = await this.user.findOneOrFail({
         where: {
           nickname: nickName,
+          posts: {
+            postStatus: PostStatus.PUBLISHED,
+          },
         },
         relations: ['posts', 'posts.comments'],
         order: {
