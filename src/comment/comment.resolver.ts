@@ -39,6 +39,11 @@ export class CommentResolver {
     return this.commentService.deleteComment(deleteCommentInput);
   }
 
+  @Mutation(() => DeleteCommentOutput)
+  deleteCommentByAdmin(@Args('id', { type: () => Int }) id: number) {
+    return this.commentService.deleteCommentByAdmin(id);
+  }
+
   @Query(() => GetCommentOutput)
   getComments() {
     return this.commentService.getComments();

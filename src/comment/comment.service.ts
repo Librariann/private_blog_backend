@@ -14,6 +14,7 @@ import {
 import { EditCommentInput, EditCommentOutput } from './dto/edit-comment.dto';
 import { GetCommentOutput } from './dto/get-comment.dto';
 import { PostService } from 'src/post/post.service';
+import { logger } from 'src/logger/winston';
 
 @Injectable()
 export class CommentService {
@@ -140,7 +141,32 @@ export class CommentService {
         error: '댓글 삭제가 완료됐습니다.',
       };
     } catch (e) {
-      console.log(e);
+      logger.error(e);
+      return {
+        ok: false,
+        error: '댓글을 삭제 할 수 없습니다.',
+      };
+    }
+  }
+
+  async deleteCommentByAdmin(id: number): Promise<DeleteCommentOutput> {
+    try {
+      await this.comment.findOneOrFail({
+        where: {
+          id,
+        },
+      });
+
+      await this.comment.delete({
+        id,
+      });
+
+      return {
+        ok: true,
+        error: '댓글 삭제가 완료됐습니다.',
+      };
+    } catch (e) {
+      logger.error(e);
       return {
         ok: false,
         error: '댓글을 삭제 할 수 없습니다.',
@@ -150,14 +176,16 @@ export class CommentService {
 
   async getComments(): Promise<GetCommentOutput> {
     try {
-      const comments = await this.comment.find();
+      const comments = await this.comment.find({
+        relations: ['post'],
+      });
 
       return {
         ok: true,
         comments: comments,
       };
     } catch (e) {
-      console.log(e);
+      logger.error(e);
       return {
         ok: false,
         error: '댓글을 가져올 수 없습니다.',

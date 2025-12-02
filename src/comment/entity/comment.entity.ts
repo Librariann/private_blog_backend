@@ -22,6 +22,7 @@ export class Comment extends CoreEntity {
     onDelete: 'SET NULL',
     eager: true,
   })
+  @Field(() => Post, { nullable: true })
   post: Post;
 
   @Column({ nullable: false })
