@@ -207,7 +207,12 @@ export class PostService {
   async getPostList(): Promise<GetPostListOutput> {
     try {
       const posts = await this.post.find({
-        relations: ['category', 'hashtags', 'comments'],
+        relations: [
+          'category',
+          'hashtags',
+          'comments',
+          'category.parentCategory',
+        ],
         order: {
           createdAt: 'DESC',
         },
