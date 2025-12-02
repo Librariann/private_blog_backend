@@ -42,6 +42,11 @@ export class Category extends CoreEntity {
   @IsString()
   iconColor?: string;
 
+  @Column({ nullable: true })
+  @Field(() => String, { nullable: true })
+  @IsString()
+  description?: string;
+
   @OneToMany(() => Post, (post) => post.category, {
     onDelete: 'SET NULL',
     eager: true,
