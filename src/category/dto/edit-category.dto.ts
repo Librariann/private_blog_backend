@@ -24,6 +24,9 @@ export class EditCategoryInput extends PickType(Category, ['id']) {
 
   @Field(() => Boolean, { nullable: true })
   isParent?: boolean;
+
+  @Field(() => String, { nullable: true })
+  description?: string;
 }
 
 @ObjectType()

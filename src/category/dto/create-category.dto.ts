@@ -18,6 +18,9 @@ export class CreateCategoryInput extends PickType(Category, ['categoryTitle']) {
 
   @Field(() => String, { nullable: true })
   iconColor?: string;
+
+  @Field(() => String, { nullable: true })
+  description?: string;
 }
 
 @ObjectType()
