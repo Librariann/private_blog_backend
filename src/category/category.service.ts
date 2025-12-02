@@ -227,7 +227,6 @@ export class CategoryService {
         .where('category.parentCategory IS NULL')
         .orderBy('category.sortOrder', 'ASC')
         .getMany();
-
       return {
         ok: true,
         categories: getCategories,

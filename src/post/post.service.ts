@@ -74,6 +74,7 @@ export class PostService {
   ): Promise<EditPostOutput> {
     try {
       const existPost = await this.getPostFindOne(updatePost.id);
+      console.log(existPost.post);
       const compareUserBool = this.comparePostUser(user, existPost.post);
 
       if (!compareUserBool) {
@@ -240,7 +241,13 @@ export class PostService {
         where: {
           id: postId,
         },
-        relations: ['category', 'comments', 'hashtags', 'user'],
+        relations: [
+          'category',
+          'comments',
+          'hashtags',
+          'user',
+          'category.parentCategory',
+        ],
       });
 
       if (!post) {
@@ -250,9 +257,38 @@ export class PostService {
         };
       }
 
+      const prevPost = await this.post
+        .createQueryBuilder('post')
+        .select(['post.id', 'post.title', 'post.createdAt', 'post.readTime'])
+        .where('post.category.id = :categoryId', {
+          categoryId: post.category.id,
+        })
+        .leftJoinAndSelect('post.category', 'category')
+        .andWhere('post.createdAt < :createdAt', { createdAt: post.createdAt })
+        .andWhere('post.postStatus = :status', { status: PostStatus.PUBLISHED })
+        .orderBy('post.createdAt', 'DESC')
+        .limit(1)
+        .getOne();
+
+      const nextPost = await this.post
+        .createQueryBuilder('post')
+        .select(['post.id', 'post.title', 'post.createdAt', 'post.readTime'])
+        .where('post.category.id = :categoryId', {
+          categoryId: post.category.id,
+        })
+        .leftJoinAndSelect('post.category', 'category')
+        .andWhere('post.createdAt > :createdAt', { createdAt: post.createdAt })
+        .andWhere('post.postStatus = :status', { status: PostStatus.PUBLISHED })
+        .andWhere('post.id != :postId', { postId: post.id })
+        .orderBy('post.createdAt', 'ASC')
+        .limit(1)
+        .getOne();
+
       return {
         ok: true,
         post,
+        prevPost,
+        nextPost,
       };
     } catch (e) {
       logger.error(e);

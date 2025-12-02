@@ -6,4 +6,10 @@ import { Post } from '../entity/post.entity';
 export class GetPostByIdOutput extends Output {
   @Field(() => Post, { nullable: true })
   post?: Post;
+
+  @Field(() => Post, { nullable: true })
+  prevPost?: Post;
+
+  @Field(() => Post, { nullable: true })
+  nextPost?: Post;
 }
