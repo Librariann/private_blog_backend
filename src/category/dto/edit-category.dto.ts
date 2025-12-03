@@ -31,3 +31,20 @@ export class EditCategoryInput extends PickType(Category, ['id']) {
 
 @ObjectType()
 export class EditCategoryOutput extends Output {}
+
+@InputType()
+export class CategorySortInput {
+  @Field(() => Int)
+  id: number;
+
+  @Field(() => Int)
+  sortOrder: number;
+}
+@InputType()
+export class EditSortCategoryInput {
+  @Field(() => [CategorySortInput], { nullable: true })
+  editSortCategories: CategorySortInput[];
+}
+
+@ObjectType()
+export class EditSortCategoryOutput extends Output {}

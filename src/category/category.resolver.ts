@@ -6,7 +6,12 @@ import {
 import { Category } from './entity/category.entity';
 import { CategoryService } from './category.service';
 import { DeleteCategoryOutput } from './dto/delete-category.dto';
-import { EditCategoryInput, EditCategoryOutput } from './dto/edit-category.dto';
+import {
+  EditCategoryInput,
+  EditCategoryOutput,
+  EditSortCategoryInput,
+  EditSortCategoryOutput,
+} from './dto/edit-category.dto';
 import {
   GetCategoriesCountOutput,
   GetCategoriesOutput,
@@ -30,6 +35,14 @@ export class CategoryResolver {
     @Args('input') editCategoryInput: EditCategoryInput,
   ): Promise<EditCategoryOutput> {
     return this.categoryService.editCategory(editCategoryInput);
+  }
+
+  @Mutation(() => EditSortCategoryOutput)
+  editSortCategory(
+    @Args('input', { type: () => EditSortCategoryInput })
+    editSortCategoryInput: EditSortCategoryInput,
+  ): Promise<EditSortCategoryOutput> {
+    return this.categoryService.editSortCategory(editSortCategoryInput);
   }
 
   @Mutation(() => DeleteCategoryOutput)

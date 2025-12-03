@@ -7,14 +7,19 @@ import {
   CreateCategoryOutput,
 } from './dto/create-category.dto';
 import { DeleteCategoryOutput } from './dto/delete-category.dto';
-import { EditCategoryInput, EditCategoryOutput } from './dto/edit-category.dto';
+import {
+  EditCategoryInput,
+  EditCategoryOutput,
+  EditSortCategoryInput,
+  EditSortCategoryOutput,
+} from './dto/edit-category.dto';
 import {
   GetCategoriesCountOutput,
   GetCategoriesOutput,
   GetCategoryByIdOutput,
-  GetParentCategoriesOutput,
 } from './dto/get-categories.dto';
 import { PostStatus } from 'src/post/entity/post.entity';
+import { logger } from 'src/logger/winston';
 
 @Injectable()
 export class CategoryService {
@@ -96,7 +101,7 @@ export class CategoryService {
         categoryId: newCategory.id,
       };
     } catch (e) {
-      console.log(e);
+      logger.error('카테고리를 생성 할 수 없습니다.', e);
       return {
         ok: false,
         error: '카테고리를 생성 할 수 없습니다.',
@@ -173,7 +178,7 @@ export class CategoryService {
         error: '카테고리가 수정되었습니다.',
       };
     } catch (e) {
-      console.log(e);
+      logger.error('카테고리를 수정 할 수 없습니다.', e);
       return {
         ok: false,
         error: '카테고리를 수정 할 수 없습니다.',
@@ -203,7 +208,10 @@ export class CategoryService {
         error: '카테고리를 삭제했습니다',
       };
     } catch (e) {
-      console.log(e);
+      logger.error(
+        '카테고리를 삭제 할 수 없습니다. 관리자에게 문의해 주세요.',
+        e,
+      );
       return {
         ok: false,
         error: '카테고리를 삭제 할 수 없습니다. 관리자에게 문의해 주세요.',
@@ -232,7 +240,10 @@ export class CategoryService {
         categories: getCategories,
       };
     } catch (e) {
-      console.log(e);
+      logger.error(
+        '카테고리를 가져 올 수 없습니다. 관리자에게 문의해 주세요.',
+        e,
+      );
       return {
         ok: false,
         error: '카테고리를 가져 올 수 없습니다. 관리자에게 문의해 주세요.',
@@ -268,15 +279,20 @@ export class CategoryService {
     };
   }
 
-  async getParentCategories(): Promise<GetParentCategoriesOutput> {
-    const getParentCategories = await this.category.find({
-      where: { parentCategory: IsNull() },
-      order: { sortOrder: 'DESC' },
-    });
-
-    return {
-      ok: true,
-      categories: getParentCategories,
-    };
+  async editSortCategory({
+    editSortCategories,
+  }: EditSortCategoryInput): Promise<EditSortCategoryOutput> {
+    try {
+      await this.category.save(editSortCategories);
+      return {
+        ok: true,
+      };
+    } catch (e) {
+      logger.error(e, '순서를 변경 할 수 없습니다.');
+      return {
+        ok: false,
+        error: '순서를 변경 할 수 없습니다',
+      };
+    }
   }
 }
