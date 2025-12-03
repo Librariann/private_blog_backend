@@ -234,6 +234,7 @@ export class CategoryService {
         )
         .where('category.parentCategory IS NULL')
         .orderBy('category.sortOrder', 'ASC')
+        .addOrderBy('subCategories.sortOrder', 'ASC')
         .getMany();
       return {
         ok: true,
