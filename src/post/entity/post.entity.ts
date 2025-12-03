@@ -7,7 +7,7 @@ import {
   Int,
   registerEnumType,
 } from '@nestjs/graphql';
-import { IsInt, IsNumber, IsString } from 'class-validator';
+import { IsBoolean, IsInt, IsNumber, IsString } from 'class-validator';
 import { Comment } from '../../comment/entity/comment.entity';
 import { User } from '../../user/entity/user.entity';
 import { Category } from '../../category/entity/category.entity';
@@ -19,6 +19,12 @@ export enum PostStatus {
   PRIVATE = 'PRIVATE', // 비공개
   DELETED = 'DELETED', // 삭제
 }
+
+export enum FeatureStatus {
+  Y = 'Y',
+  N = 'N',
+}
+
 registerEnumType(PostStatus, { name: 'PostStatus' });
 @InputType('PostInputType', { isAbstract: true })
 @ObjectType()
@@ -74,6 +80,16 @@ export class Post extends CoreEntity {
   @Field(() => Int, { nullable: false })
   @IsNumber()
   readTime: number;
+
+  @Column({
+    type: 'enum',
+    enum: FeatureStatus,
+    nullable: false,
+    default: FeatureStatus.N,
+  })
+  @Field(() => String, { nullable: false })
+  @IsString()
+  featureYn: string;
 
   @Column({ type: 'enum', enum: PostStatus, default: PostStatus.PUBLISHED })
   @Field(() => PostStatus)
