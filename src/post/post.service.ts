@@ -262,8 +262,14 @@ export class PostService {
           postStatus: PostStatus.PUBLISHED,
         },
       });
-      const featuredPost = await this.post.findOneByOrFail({
-        featureYn: FeatureStatus.Y,
+      const featuredPost = await this.post.findOneOrFail({
+        where: { featureYn: FeatureStatus.Y },
+        relations: [
+          'category',
+          'hashtags',
+          'comments',
+          'category.parentCategory',
+        ],
       });
 
       return {
