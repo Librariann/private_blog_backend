@@ -7,7 +7,7 @@ import {
   Int,
   registerEnumType,
 } from '@nestjs/graphql';
-import { IsBoolean, IsInt, IsNumber, IsString } from 'class-validator';
+import { IsInt, IsNumber, IsString } from 'class-validator';
 import { Comment } from '../../comment/entity/comment.entity';
 import { User } from '../../user/entity/user.entity';
 import { Category } from '../../category/entity/category.entity';

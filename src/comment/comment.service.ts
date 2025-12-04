@@ -24,22 +24,40 @@ export class CommentService {
     @InjectRepository(Post)
     private readonly post: Repository<Post>,
   ) {}
-  async createComment(
-    // commentUser: User,
-    { postId, comment, annonymousId, annonymousPassword }: CreateCommentInput,
-  ): Promise<CreateCommentOutput> {
+  async createComment({
+    postId,
+    comment,
+    annonymousId,
+    annonymousPassword,
+  }: CreateCommentInput): Promise<CreateCommentOutput> {
     try {
+      if (!annonymousId.trim()) {
+        return {
+          ok: false,
+          error: '아이디를 입력 해주세요.',
+        };
+      }
+
+      if (!annonymousPassword.trim()) {
+        return {
+          ok: false,
+          error: '비밀번호를 입력 해주세요.',
+        };
+      }
+
+      if (!comment.trim()) {
+        return {
+          ok: false,
+          error: '댓글 내용을 입력해주세요.',
+        };
+      }
+
       const existPost = await this.post.findOneOrFail({
         where: {
           id: postId,
         },
       });
-      if (!existPost) {
-        return {
-          ok: false,
-          error: '해당 글이 존재하지 않습니다.',
-        };
-      }
+
       const newComment = this.comment.create({
         post: existPost,
         comment: comment,
@@ -52,9 +70,10 @@ export class CommentService {
         ok: true,
         commentResult,
         commentId: commentResult.id,
+        message: '댓글이 생성 됐습니다.',
       };
     } catch (e) {
-      console.log(e);
+      logger.error(e, '댓글을 생성할 수 없습니다.');
       return {
         ok: false,
         error: e,
@@ -68,18 +87,25 @@ export class CommentService {
     commentPassword,
   }: EditCommentInput): Promise<EditCommentOutput> {
     try {
+      if (!comment.trim()) {
+        return {
+          ok: false,
+          error: '댓글 내용을 입력 해주세요.',
+        };
+      }
+
+      if (!commentPassword.trim()) {
+        return {
+          ok: false,
+          error: '비밀번호를 입력 해주세요.',
+        };
+      }
+
       const existComment = await this.comment.findOneOrFail({
         where: {
           id,
         },
       });
-
-      if (!existComment) {
-        return {
-          ok: false,
-          error: '해당 댓글이 존재하지 않습니다.',
-        };
-      }
 
       const passwordCheck = await existComment.checkPassword(commentPassword);
 
@@ -95,9 +121,10 @@ export class CommentService {
       return {
         ok: true,
         error: '댓글이 수정 됐습니다.',
+        message: '댓글이 수정 됐습니다.',
       };
     } catch (e) {
-      console.log(e);
+      logger.error(e, '댓글을 수정 할 수 없습니다.');
       return {
         ok: false,
         error: '댓글을 수정 할 수 없습니다.',
@@ -110,18 +137,18 @@ export class CommentService {
     commentPassword,
   }: DeleteCommentInput): Promise<DeleteCommentOutput> {
     try {
+      if (!commentPassword.trim()) {
+        return {
+          ok: false,
+          error: '비밀번호를 입력 해주세요.',
+        };
+      }
+
       const existComment = await this.comment.findOneOrFail({
         where: {
           id,
         },
       });
-
-      if (!existComment) {
-        return {
-          ok: false,
-          error: '해당 댓글이 존재하지 않습니다.',
-        };
-      }
 
       const passwordCheck = await existComment.checkPassword(commentPassword);
 
@@ -139,10 +166,10 @@ export class CommentService {
       return {
         ok: true,
         id,
-        error: '댓글 삭제가 완료됐습니다.',
+        message: '댓글이 삭제 됐습니다.',
       };
     } catch (e) {
-      logger.error(e);
+      logger.error(e, '댓글을 삭제 할 수 없습니다.');
       return {
         ok: false,
         error: '댓글을 삭제 할 수 없습니다.',
@@ -167,7 +194,7 @@ export class CommentService {
         error: '댓글 삭제가 완료됐습니다.',
       };
     } catch (e) {
-      logger.error(e);
+      logger.error(e, '댓글을 삭제 할 수 없습니다.');
       return {
         ok: false,
         error: '댓글을 삭제 할 수 없습니다.',
@@ -186,7 +213,7 @@ export class CommentService {
         comments: comments,
       };
     } catch (e) {
-      logger.error(e);
+      logger.error(e, '댓글을 가져올 수 없습니다.');
       return {
         ok: false,
         error: '댓글을 가져올 수 없습니다.',
