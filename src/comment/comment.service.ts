@@ -13,7 +13,6 @@ import {
 } from './dto/delete-comment.dto';
 import { EditCommentInput, EditCommentOutput } from './dto/edit-comment.dto';
 import { GetCommentOutput } from './dto/get-comment.dto';
-import { PostService } from 'src/post/post.service';
 import { logger } from 'src/logger/winston';
 
 @Injectable()
@@ -48,10 +47,11 @@ export class CommentService {
         annonymousPassword: annonymousPassword,
         // user: commentUser,
       });
-      await this.comment.save(newComment);
+      const commentResult = await this.comment.save(newComment);
       return {
         ok: true,
-        commentId: newComment.id,
+        commentResult,
+        commentId: commentResult.id,
       };
     } catch (e) {
       console.log(e);
@@ -138,6 +138,7 @@ export class CommentService {
 
       return {
         ok: true,
+        id,
         error: '댓글 삭제가 완료됐습니다.',
       };
     } catch (e) {

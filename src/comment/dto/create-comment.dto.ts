@@ -16,4 +16,7 @@ export class CreateCommentInput extends PickType(Comment, [
 export class CreateCommentOutput extends Output {
   @Field(() => Int)
   commentId?: number;
+
+  @Field(() => Comment)
+  commentResult?: Comment;
 }

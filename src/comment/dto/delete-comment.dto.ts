@@ -11,4 +11,7 @@ export class DeleteCommentInput {
 }
 
 @ObjectType()
-export class DeleteCommentOutput extends Output {}
+export class DeleteCommentOutput extends Output {
+  @Field(() => Int)
+  id?: number;
+}

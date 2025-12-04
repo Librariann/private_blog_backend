@@ -324,18 +324,16 @@ export class PostService {
   //post find one
   async getPostFindOne(postId: number): Promise<GetPostByIdOutput> {
     try {
-      const post = await this.post.findOne({
-        where: {
-          id: postId,
-        },
-        relations: [
-          'category',
-          'comments',
-          'hashtags',
-          'user',
-          'category.parentCategory',
-        ],
-      });
+      const post = await this.post
+        .createQueryBuilder('post')
+        .leftJoinAndSelect('post.category', 'category')
+        .leftJoinAndSelect('post.comments', 'comments')
+        .leftJoinAndSelect('post.hashtags', 'hashtags')
+        .leftJoinAndSelect('post.user', 'user')
+        .leftJoinAndSelect('category.parentCategory', 'parentCategory')
+        .where('post.id = :postId', { postId })
+        .orderBy('comments.createdAt', 'DESC') // comments 정렬
+        .getOne();
 
       if (!post) {
         return {
