@@ -2,6 +2,7 @@ import { Injectable, NestMiddleware } from '@nestjs/common';
 import { JwtService } from './jwt.service';
 import { UserService } from 'src/user/user.service';
 import { NextFunction, Request, Response } from 'express';
+import { logger } from 'src/logger/winston';
 
 @Injectable()
 export class JwtMiddleware implements NestMiddleware {
@@ -19,7 +20,7 @@ export class JwtMiddleware implements NestMiddleware {
           req['user'] = user;
         }
       } catch (e) {
-        console.log(e);
+        logger.error(e);
       }
     }
     next();

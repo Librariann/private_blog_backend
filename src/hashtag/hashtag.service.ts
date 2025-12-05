@@ -13,6 +13,7 @@ import {
   UpdateHashTagOutput,
 } from './dto/update-hashtag.dto';
 import { GetAllPopularHashTagsOutput } from './dto/get-all-popular-hashtags.dto';
+import { logger } from 'src/logger/winston';
 
 @Injectable()
 export class HashtagService {
@@ -139,7 +140,7 @@ export class HashtagService {
         hashtags: result,
       };
     } catch (e) {
-      console.log(e);
+      logger.error(e);
       return {
         ok: false,
         error: '해시태그를 가져올 수 없습니다. 관리자에게 문의해주세요.',

@@ -16,12 +16,16 @@ import {
 } from './dto/update-user-profile.dto';
 import { Injectable } from '@nestjs/common';
 import { PostStatus } from 'src/post/entity/post.entity';
+import { Hashtag } from 'src/hashtag/entity/hashtag.entity';
 
 @Injectable()
 export class UserService {
   constructor(
     @InjectRepository(User)
     private readonly user: Repository<User>,
+
+    @InjectRepository(Hashtag)
+    private readonly hashtag: Repository<Hashtag>,
 
     private readonly jwtService: JwtService,
   ) {}
@@ -38,7 +42,7 @@ export class UserService {
       await this.user.save(this.user.create({ email, password }));
       return { ok: true };
     } catch (e) {
-      console.log(e);
+      logger.error(e);
       return { ok: false, error: '계정을 생성 할 수 없습니다.' };
     }
   }
@@ -78,7 +82,7 @@ export class UserService {
 
       return { ok: true };
     } catch (e) {
-      console.log(e);
+      logger.error(e);
       logger.error('업데이트 불가', e);
       return {
         ok: false,
@@ -105,7 +109,7 @@ export class UserService {
       const token = this.jwtService.sign(user.id);
       return { ok: true, error: '로그인 성공했습니다', token };
     } catch (e) {
-      console.log(e);
+      logger.error(e);
       logger.error('로그인 불가', e);
       return {
         ok: false,
@@ -129,7 +133,7 @@ export class UserService {
       });
       return { ok: true, user: userInfo };
     } catch (e) {
-      console.log(e);
+      logger.error(e);
       return {
         ok: false,
         error: '기능에 이상이 있습니다. 관리자에게 문의해주세요.',
@@ -153,9 +157,18 @@ export class UserService {
           },
         },
       });
-      return { ok: true, user: userInfo };
+
+      const tags = await this.hashtag
+        .createQueryBuilder('hashtag')
+        .select('hashtag.hashtag', 'hashtag')
+        .addSelect('COUNT(hashtag.hashtag)', 'count')
+        .groupBy('hashtag.hashtag')
+        .orderBy('count', 'DESC')
+        .getRawMany();
+
+      return { ok: true, user: userInfo, hashtagLength: tags.length };
     } catch (e) {
-      console.log(e);
+      logger.error(e, '기능에 이상이 있습니다. 관리자에게 문의해주세요.');
       return {
         ok: false,
         error: '기능에 이상이 있습니다. 관리자에게 문의해주세요.',

@@ -20,7 +20,7 @@ export class Hashtag extends CoreEntity {
 
   @ManyToOne(() => Post, (post) => post.hashtags, {
     onDelete: 'SET NULL',
-    eager: true,
+    // eager: true,
   })
   post: Post;
 }

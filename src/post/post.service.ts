@@ -79,7 +79,6 @@ export class PostService {
   ): Promise<EditPostOutput> {
     try {
       const existPost = await this.getPostFindOne(updatePost.id);
-      console.log(existPost.post);
       const compareUserBool = this.comparePostUser(user, existPost.post);
 
       if (!compareUserBool) {
