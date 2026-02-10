@@ -394,7 +394,12 @@ export class PostService {
           },
           postStatus: PostStatus.PUBLISHED,
         },
-        relations: ['category', 'comments', 'hashtags'],
+        relations: [
+          'category',
+          'comments',
+          'hashtags',
+          'category.parentCategory',
+        ],
         order: {
           createdAt: 'DESC',
         },
@@ -433,7 +438,12 @@ export class PostService {
           },
           postStatus: PostStatus.PUBLISHED,
         },
-        relations: ['category', 'comments', 'hashtags'],
+        relations: [
+          'category',
+          'comments',
+          'hashtags',
+          'category.parentCategory',
+        ],
         order: {
           createdAt: 'DESC',
         },
