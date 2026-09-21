@@ -1,6 +1,6 @@
 import { CoreEntity } from '../../common/entity/core.entity';
 import { Entity, Column, OneToMany, ManyToOne, JoinColumn } from 'typeorm';
-import { Field, ObjectType, InputType } from '@nestjs/graphql';
+import { Field, ObjectType, InputType, Int } from '@nestjs/graphql';
 import { IsNumber, IsString } from 'class-validator';
 import { Post } from '../../post/entity/post.entity';
 
@@ -49,8 +49,9 @@ export class Category extends CoreEntity {
 
   @OneToMany(() => Post, (post) => post.category, {
     onDelete: 'SET NULL',
-    eager: true,
   })
-  @Field(() => [Post], { nullable: true })
   post: Post[];
+
+  @Field(() => Int, { nullable: true })
+  postCount?: number;
 }

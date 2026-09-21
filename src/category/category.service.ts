@@ -14,7 +14,6 @@ import {
   EditSortCategoryOutput,
 } from './dto/edit-category.dto';
 import {
-  GetCategoriesCountOutput,
   GetCategoriesOutput,
   GetCategoryByIdOutput,
 } from './dto/get-categories.dto';
@@ -226,16 +225,28 @@ export class CategoryService {
         .leftJoinAndSelect('category.subCategories', 'subCategories')
         .leftJoinAndSelect('subCategories.parentCategory', 'subParentCategory')
         .leftJoinAndSelect('category.parentCategory', 'parentCategory')
-        .leftJoinAndSelect(
+        .loadRelationCountAndMap(
+          'subCategories.postCount',
           'subCategories.post',
-          'post',
-          'post.postStatus = :status',
-          { status: PostStatus.PUBLISHED },
+          'publishedPost',
+          (queryBuilder) =>
+            queryBuilder.andWhere('publishedPost.postStatus = :postStatus', {
+              postStatus: PostStatus.PUBLISHED,
+            }),
         )
         .where('category.parentCategory IS NULL')
         .orderBy('category.sortOrder', 'ASC')
         .addOrderBy('subCategories.sortOrder', 'ASC')
         .getMany();
+
+      getCategories.forEach((category) => {
+        category.postCount =
+          category.subCategories?.reduce(
+            (total, subCategory) => total + (subCategory.postCount ?? 0),
+            0,
+          ) ?? 0;
+      });
+
       return {
         ok: true,
         categories: getCategories,
@@ -262,21 +273,6 @@ export class CategoryService {
     return {
       ok: true,
       category,
-    };
-  }
-
-  async getCategoryCounts(): Promise<GetCategoriesCountOutput> {
-    const getCategories = await this.category.find({
-      relations: ['subCategories', 'parentCategory'],
-      where: {
-        parentCategory: IsNull(),
-        // post: { postStatus: PostStatus.PUBLISHED },
-      },
-      order: { sortOrder: 'ASC' },
-    });
-    return {
-      ok: true,
-      categoryCounts: getCategories,
     };
   }
 

@@ -13,7 +13,6 @@ import {
   EditSortCategoryOutput,
 } from './dto/edit-category.dto';
 import {
-  GetCategoriesCountOutput,
   GetCategoriesOutput,
   GetCategoryByIdOutput,
 } from './dto/get-categories.dto';
@@ -64,11 +63,5 @@ export class CategoryResolver {
     @Args('categoryId', { type: () => Int }) categoryId: number,
   ): Promise<GetCategoryByIdOutput> {
     return this.categoryService.findOneCategoryById(categoryId);
-  }
-
-  @Query(() => GetCategoriesCountOutput)
-  @Public()
-  getCategoriesCounts(): Promise<GetCategoriesCountOutput> {
-    return this.categoryService.getCategoryCounts();
   }
 }
