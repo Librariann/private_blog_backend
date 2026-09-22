@@ -385,15 +385,20 @@ export class PostService {
 
   async getPostListByCategoryId(
     categoryId: number,
+    offset = 0,
+    limit = 10,
   ): Promise<getPostListByCategoryIdOutput> {
     try {
-      const posts = await this.post.find({
-        where: {
-          category: {
-            id: categoryId,
-          },
-          postStatus: PostStatus.PUBLISHED,
+      const normalizedOffset = Math.max(0, offset);
+      const normalizedLimit = Math.min(Math.max(1, limit), 50);
+      const where = {
+        category: {
+          id: categoryId,
         },
+        postStatus: PostStatus.PUBLISHED,
+      };
+      const [posts, totalCount] = await this.post.findAndCount({
+        where,
         relations: [
           'category',
           'comments',
@@ -403,41 +408,60 @@ export class PostService {
         order: {
           createdAt: 'DESC',
         },
+        skip: normalizedOffset,
+        take: normalizedLimit,
       });
 
-      if (!posts) {
-        return {
-          ok: false,
-          error: '게시물이 존재하지 않습니다.',
-        };
-      }
+      const metrics = await this.post
+        .createQueryBuilder('post')
+        .select('COALESCE(SUM(post.hits), 0)', 'totalViews')
+        .addSelect('COALESCE(AVG(post.readTime), 0)', 'averageReadTime')
+        .leftJoin('post.category', 'category')
+        .where('category.id = :categoryId', { categoryId })
+        .andWhere('post.postStatus = :status', {
+          status: PostStatus.PUBLISHED,
+        })
+        .getRawOne<{ totalViews: string; averageReadTime: string }>();
 
       return {
         ok: true,
         posts,
+        hasMore: normalizedOffset + posts.length < totalCount,
+        totalCount,
+        totalViews: Number(metrics?.totalViews || 0),
+        averageReadTime: Math.round(Number(metrics?.averageReadTime || 0)),
       };
     } catch (e) {
       console.error(e);
       return {
         ok: false,
         error: `관리자에게 문의해주세요 ${e}`,
+        hasMore: false,
+        totalCount: 0,
+        totalViews: 0,
+        averageReadTime: 0,
       };
     }
   }
 
   async getPostsByParentCategoryId(
     categoryId: number,
+    offset = 0,
+    limit = 10,
   ): Promise<getPostListByCategoryIdOutput> {
     try {
-      const posts = await this.post.find({
-        where: {
-          category: {
-            parentCategory: {
-              id: categoryId,
-            },
+      const normalizedOffset = Math.max(0, offset);
+      const normalizedLimit = Math.min(Math.max(1, limit), 50);
+      const where = {
+        category: {
+          parentCategory: {
+            id: categoryId,
           },
-          postStatus: PostStatus.PUBLISHED,
         },
+        postStatus: PostStatus.PUBLISHED,
+      };
+      const [posts, totalCount] = await this.post.findAndCount({
+        where,
         relations: [
           'category',
           'comments',
@@ -447,14 +471,21 @@ export class PostService {
         order: {
           createdAt: 'DESC',
         },
+        skip: normalizedOffset,
+        take: normalizedLimit,
       });
 
-      if (!posts) {
-        return {
-          ok: false,
-          error: '게시물이 존재하지 않습니다.',
-        };
-      }
+      const metrics = await this.post
+        .createQueryBuilder('post')
+        .select('COALESCE(SUM(post.hits), 0)', 'totalViews')
+        .addSelect('COALESCE(AVG(post.readTime), 0)', 'averageReadTime')
+        .leftJoin('post.category', 'category')
+        .leftJoin('category.parentCategory', 'parentCategory')
+        .where('parentCategory.id = :categoryId', { categoryId })
+        .andWhere('post.postStatus = :status', {
+          status: PostStatus.PUBLISHED,
+        })
+        .getRawOne<{ totalViews: string; averageReadTime: string }>();
 
       const getParentCategory = await this.category.findOneByOrFail({
         id: categoryId,
@@ -468,11 +499,19 @@ export class PostService {
       return {
         ok: true,
         posts,
+        hasMore: normalizedOffset + posts.length < totalCount,
+        totalCount,
+        totalViews: Number(metrics?.totalViews || 0),
+        averageReadTime: Math.round(Number(metrics?.averageReadTime || 0)),
       };
     } catch (e) {
       return {
         ok: false,
         error: `관리자에게 문의해주세요 ${e}`,
+        hasMore: false,
+        totalCount: 0,
+        totalViews: 0,
+        averageReadTime: 0,
       };
     }
   }

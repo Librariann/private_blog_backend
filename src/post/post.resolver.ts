@@ -93,16 +93,24 @@ export class PostResolver {
   @Public()
   getPostListByCategoryId(
     @Args('categoryId', { type: () => Int }) categoryId: number,
+    @Args('offset', { type: () => Int, defaultValue: 0 }) offset: number,
+    @Args('limit', { type: () => Int, defaultValue: 10 }) limit: number,
   ): Promise<getPostListByCategoryIdOutput> {
-    return this.postService.getPostListByCategoryId(categoryId);
+    return this.postService.getPostListByCategoryId(categoryId, offset, limit);
   }
 
   @Query(() => getPostListByCategoryIdOutput, { nullable: true })
   @Public()
   getPostsByParentCategoryId(
     @Args('categoryId', { type: () => Int }) categoryId: number,
+    @Args('offset', { type: () => Int, defaultValue: 0 }) offset: number,
+    @Args('limit', { type: () => Int, defaultValue: 10 }) limit: number,
   ): Promise<getPostListByCategoryIdOutput> {
-    return this.postService.getPostsByParentCategoryId(categoryId);
+    return this.postService.getPostsByParentCategoryId(
+      categoryId,
+      offset,
+      limit,
+    );
   }
 
   @Query(() => GetPostListOutput)

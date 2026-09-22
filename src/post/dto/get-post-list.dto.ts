@@ -1,4 +1,4 @@
-import { ObjectType, Field } from '@nestjs/graphql';
+import { ObjectType, Field, Int } from '@nestjs/graphql';
 import { Output } from 'src/common/dto/output.dto';
 import { Post } from '../entity/post.entity';
 
@@ -24,4 +24,16 @@ export class GetPostListWithLimitOutput extends Output {
 export class getPostListByCategoryIdOutput extends Output {
   @Field(() => [Post], { nullable: true })
   posts?: Post[];
+
+  @Field(() => Boolean)
+  hasMore: boolean;
+
+  @Field(() => Int)
+  totalCount: number;
+
+  @Field(() => Int)
+  totalViews: number;
+
+  @Field(() => Int)
+  averageReadTime: number;
 }
