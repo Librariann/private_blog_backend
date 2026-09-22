@@ -3,6 +3,7 @@ import { Resolver, Mutation, Args, Query, Int } from '@nestjs/graphql';
 import { PostService } from './post.service';
 import { CreatePostInput, CreatePostOutput } from './dto/create-post.dto';
 import {
+  GetPaginatedPostListOutput,
   getPostListByCategoryIdOutput,
   GetPostListOutput,
   GetPostListWithLimitOutput,
@@ -73,6 +74,24 @@ export class PostResolver {
   @Public()
   getPostList(): Promise<GetPostListOutput> {
     return this.postService.getPostList();
+  }
+
+  @Query(() => GetPaginatedPostListOutput)
+  @Public()
+  getPaginatedPostList(
+    @Args('offset', { type: () => Int, defaultValue: 0 }) offset: number,
+    @Args('limit', { type: () => Int, defaultValue: 10 }) limit: number,
+    @Args('searchQuery', { type: () => String, nullable: true })
+    searchQuery?: string,
+    @Args('categoryTitle', { type: () => String, nullable: true })
+    categoryTitle?: string,
+  ): Promise<GetPaginatedPostListOutput> {
+    return this.postService.getPaginatedPostList(
+      offset,
+      limit,
+      searchQuery,
+      categoryTitle,
+    );
   }
 
   @Query(() => GetPostListWithLimitOutput)

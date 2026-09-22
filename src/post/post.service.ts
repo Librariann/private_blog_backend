@@ -3,6 +3,7 @@ import { Repository } from 'typeorm';
 import { InjectRepository } from '@nestjs/typeorm';
 import { CreatePostInput, CreatePostOutput } from './dto/create-post.dto';
 import {
+  GetPaginatedPostListOutput,
   getPostListByCategoryIdOutput,
   GetPostListOutput,
   GetPostListWithLimitOutput,
@@ -284,16 +285,81 @@ export class PostService {
     }
   }
 
+  async getPaginatedPostList(
+    offset = 0,
+    limit = 10,
+    searchQuery?: string,
+    categoryTitle?: string,
+  ): Promise<GetPaginatedPostListOutput> {
+    try {
+      const normalizedOffset = Math.max(0, offset);
+      const normalizedLimit = Math.min(Math.max(1, limit), 50);
+      const query = this.post
+        .createQueryBuilder('post')
+        .leftJoinAndSelect('post.category', 'category')
+        .leftJoinAndSelect('category.parentCategory', 'parentCategory')
+        .leftJoinAndSelect('post.hashtags', 'hashtags')
+        .select([
+          'post.id',
+          'post.title',
+          'post.excerpt',
+          'post.hits',
+          'post.thumbnailUrl',
+          'post.createdAt',
+          'post.readTime',
+          'category.id',
+          'category.categoryTitle',
+          'parentCategory.id',
+          'parentCategory.categoryTitle',
+          'hashtags.id',
+          'hashtags.hashtag',
+        ])
+        .where('post.postStatus = :status', {
+          status: PostStatus.PUBLISHED,
+        })
+        .orderBy('post.createdAt', 'DESC')
+        .skip(normalizedOffset)
+        .take(normalizedLimit);
+
+      const normalizedSearchQuery = searchQuery?.trim().toLowerCase();
+      if (normalizedSearchQuery) {
+        query.andWhere(
+          `(LOWER(post.title) LIKE :searchQuery OR LOWER(COALESCE(post.excerpt, '')) LIKE :searchQuery)`,
+          { searchQuery: `%${normalizedSearchQuery}%` },
+        );
+      }
+
+      if (categoryTitle) {
+        query.andWhere('category.categoryTitle = :categoryTitle', {
+          categoryTitle,
+        });
+      }
+
+      const [posts, totalCount] = await query.getManyAndCount();
+
+      return {
+        ok: true,
+        posts,
+        hasMore: normalizedOffset + posts.length < totalCount,
+        totalCount,
+      };
+    } catch (e) {
+      logger.error(e);
+      return {
+        ok: false,
+        error: '리스트를 가져올 수 없습니다.',
+        posts: [],
+        hasMore: false,
+        totalCount: 0,
+      };
+    }
+  }
+
   async getPostListWithLimit(): Promise<GetPostListWithLimitOutput> {
     try {
-      const limit = 5;
+      const limit = 10;
       const posts = await this.post.find({
-        relations: [
-          'category',
-          'hashtags',
-          'comments',
-          'category.parentCategory',
-        ],
+        relations: ['category', 'hashtags', 'category.parentCategory'],
         take: limit,
         order: {
           createdAt: 'DESC',
@@ -303,8 +369,9 @@ export class PostService {
         },
       });
 
-      const featuredPost = await this.post.findOneByOrFail({
-        featureYn: FeatureStatus.Y,
+      const featuredPost = await this.post.findOneOrFail({
+        where: { featureYn: FeatureStatus.Y },
+        relations: ['category', 'hashtags', 'category.parentCategory'],
       });
 
       return {

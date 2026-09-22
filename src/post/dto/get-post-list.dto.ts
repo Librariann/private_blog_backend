@@ -21,6 +21,18 @@ export class GetPostListWithLimitOutput extends Output {
 }
 
 @ObjectType()
+export class GetPaginatedPostListOutput extends Output {
+  @Field(() => [Post], { nullable: true })
+  posts?: Post[];
+
+  @Field(() => Boolean)
+  hasMore: boolean;
+
+  @Field(() => Int)
+  totalCount: number;
+}
+
+@ObjectType()
 export class getPostListByCategoryIdOutput extends Output {
   @Field(() => [Post], { nullable: true })
   posts?: Post[];
